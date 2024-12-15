@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 type Footer = {
   path: string
   name: string
@@ -147,9 +149,11 @@ export default function Auth() {
               {/* Sign in */}
               <div className="flex flex-col gap-y-2 absolute -bottom-32 w-full">
                 <p className="text-white font-semibold">Already have an account?</p>
-                <button className="py-2 font-bold bg-black rounded-3xl text-sky-500 ring-1 hover:opacity-90">
+                <Link
+                  to={"/"}
+                  className="py-2 font-bold text-center bg-black rounded-3xl text-sky-500 ring-1 hover:opacity-90">
                   Sign in
-                </button>
+                </Link>
               </div>
             </div>
           </div>
