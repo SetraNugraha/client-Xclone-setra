@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom"
+import ModalRegister from "../components/ModalRegister"
+import { useState } from "react"
 
 type Footer = {
   path: string
@@ -6,6 +8,8 @@ type Footer = {
 }
 
 export default function Auth() {
+  const [modalRegister, setModalRegister] = useState<boolean>(false)
+
   const footerMenu: Footer[] = [
     {
       path: "/about",
@@ -124,7 +128,9 @@ export default function Auth() {
               </div>
 
               {/* Create Account */}
-              <button className="flex items-center justify-center gap-x-3 py-2 font-bold text-white bg-sky-500 rounded-3xl text-lg hover:opacity-90">
+              <button
+                onClick={() => setModalRegister(true)}
+                className="flex items-center justify-center gap-x-3 py-2 font-bold text-white bg-sky-500 rounded-3xl text-lg hover:opacity-90">
                 Create account
               </button>
 
@@ -168,6 +174,9 @@ export default function Auth() {
           ))}
         </div>
       </div>
+
+      {/* Modal Section */}
+      {modalRegister && <ModalRegister onClose={() => setModalRegister(false)} />}
     </section>
   )
 }
