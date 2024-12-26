@@ -12,9 +12,10 @@ import { SlOptions } from "react-icons/sl"
 import { GoHome, GoHomeFill } from "react-icons/go"
 import { IoPersonOutline, IoPersonSharp } from "react-icons/io5"
 
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { trendings } from "../dummyData/trending"
 import { formatNumberToK } from "../utils/footerPostNumber"
+import { useState } from "react"
 
 type SidebarProps = {
   children: React.ReactNode
@@ -29,6 +30,8 @@ type MenuLeftBar = {
 
 export const Sidebar = ({ children }: SidebarProps) => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [buttonLogout, setButtonLogout] = useState<boolean>(false)
   const menuLeftBar: MenuLeftBar[] = [
     {
       path: "/",
@@ -138,12 +141,14 @@ export const Sidebar = ({ children }: SidebarProps) => {
           </div>
 
           {/* Profile */}
-          <div className="relative group mb-10 py-2 pr-5 mr-2 flex items-center justify-between">
+          <button
+            onClick={() => setButtonLogout(!buttonLogout)}
+            className="relative group mb-10 py-2 pr-5 mr-2 flex items-center justify-between">
             {/* Hover background */}
             <span className=" absolute w-full h-full rounded-[3rem] group-hover:bg-slate-700/40"></span>
 
             {/* Image & Username */}
-            <Link to={"/profile"} className="z-10 flex items-center gap-x-3 pl-2">
+            <div className="z-10 flex items-center gap-x-3 pl-2">
               {/* Image */}
               <div>
                 <img src="assets/img/snorlax.png" alt="profile-image" className="size-10 rounded-full" />
@@ -154,14 +159,30 @@ export const Sidebar = ({ children }: SidebarProps) => {
                 <p className="text-white font-bold text-sm">Suma</p>
                 <p className="text-slate-500 text-sm">@Suma22123113</p>
               </div>
-            </Link>
+            </div>
 
             {/* Button Option */}
-            <Link to={"#"} className="text-white z-10">
+            <div className="text-white z-10">
               <SlOptions />
-            </Link>
-          </div>
+            </div>
+          </button>
         </div>
+
+        {/* Logout Section */}
+        {buttonLogout && (
+          <section className="absolute top-[44.2rem] left-[19rem] w-[18rem]">
+            <div className="border border-slate-500/30 shadow-lg rounded-xl shadow-slate-700/50 py-3 bg-black">
+              <button className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
+                Add an existing account
+              </button>
+              <button
+                onClick={() => navigate("/auth")}
+                className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
+                Logout @Suma12362
+              </button>
+            </div>
+          </section>
+        )}
 
         {/* Main / Center */}
         <main className="w-1/2 overflow-y-scroll scrollbar-hide border-x border-slate-800">{children}</main>

@@ -33,6 +33,11 @@ export default function ModalRegister({ onClose }: ModalRegisterProps) {
     setInputFocus((prevState) => ({ ...prevState, [field]: false }))
   }
 
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const { name, value } = e.target as HTMLInputElement
+    setForm((prevState) => ({ ...prevState, [name]: value }))
+  }
+
   return (
     <section className="fixed inset-0 bg-slate-200/20">
       {/* Container Modal */}
@@ -59,15 +64,7 @@ export default function ModalRegister({ onClose }: ModalRegisterProps) {
                 onFocus={() => handleFocus("name")}
                 onBlur={() => handleBlur("name")}
                 value={form.name}
-                onChange={(e) => {
-                  const name: string = e.target.value
-                  if (name.length <= 50) {
-                    setForm((prevState) => ({
-                      ...prevState,
-                      name: name,
-                    }))
-                  }
-                }}
+                onChange={handleChange}
               />
               <label
                 htmlFor="name"
@@ -93,7 +90,7 @@ export default function ModalRegister({ onClose }: ModalRegisterProps) {
                 onFocus={() => handleFocus("email")}
                 onBlur={() => handleBlur("email")}
                 value={form.email}
-                onChange={(e) => setForm((prevState) => ({ ...prevState, email: e.target.value }))}
+                onChange={handleChange}
               />
               <label
                 htmlFor="name"
