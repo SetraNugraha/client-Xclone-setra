@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 // Icons
 import { FaXTwitter } from "react-icons/fa6"
@@ -23,6 +23,21 @@ interface Birthday {
 }
 
 export default function ModalRegister({ onClose }: ModalRegisterProps) {
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "Mei",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ]
+
   const [inputFocus, setInputFocus] = useState<InputFocus>({
     name: false,
     email: false,
@@ -47,19 +62,19 @@ export default function ModalRegister({ onClose }: ModalRegisterProps) {
   useEffect(() => {
     setForm((prevState) => ({
       ...prevState,
-      birthday: `${birthdayForm.day}-${birthdayForm.month}-${birthdayForm.year}`,
+      birthday: `${String(birthdayForm.day)}-${birthdayForm.month}-${String(birthdayForm.year)}`,
     }))
   }, [birthdayForm])
 
-  const handleFocus = (field: keyof InputFocus) => {
+  const handleFocus = useCallback((field: keyof InputFocus) => {
     setInputFocus((prevState) => ({ ...prevState, [field]: true }))
-  }
+  }, [])
 
-  const handleBlur = (field: keyof InputFocus) => {
+  const handleBlur = useCallback((field: keyof InputFocus) => {
     setInputFocus((prevState) => ({ ...prevState, [field]: false }))
-  }
+  }, [])
 
-  const handleChange = (e: React.FormEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = useCallback((e: React.FormEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target as HTMLInputElement | HTMLSelectElement
 
     if (["day", "month", "year"].includes(name)) {
@@ -67,11 +82,7 @@ export default function ModalRegister({ onClose }: ModalRegisterProps) {
     } else {
       setForm((prevState) => ({ ...prevState, [name]: value }))
     }
-  }
-
-  useEffect(() => {
-    console.log("form: ", form)
-  }, [form])
+  }, [])
 
   return (
     <section className="fixed inset-0 bg-slate-200/20">
@@ -211,20 +222,7 @@ export default function ModalRegister({ onClose }: ModalRegisterProps) {
                   id="month"
                   onChange={handleChange}
                   className="bg-black w-full h-14 cursor-pointer border border-slate-600 rounded-sm focus:outline-none focus:border-2 focus:border-sky-600 group text-white appearance-none pt-4 pl-2 font-semibold">
-                  {[
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "Mei",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December",
-                  ].map((month, index) => (
+                  {months.map((month, index) => (
                     <option key={index} value={month}>
                       {month}
                     </option>
