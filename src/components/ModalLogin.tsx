@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { OtherLogin } from "./OtherLogin"
 import ModalRegister from "./ModalRegister"
 import { FaXTwitter } from "react-icons/fa6"
@@ -11,32 +11,15 @@ interface ModalLoginProps {
   onClose: () => void
 }
 
-interface InputFocus {
-  email: boolean
-  password: boolean
-}
-
 export default function ModalLogin({ onClose }: ModalLoginProps) {
   const navigate = useNavigate()
-  const { login, loginState } = useAuth()
+  const { login, loginState, setLoginState } = useAuth()
   const [modalRegister, setModalRegister] = useState<boolean>(false)
-  const [inputFocus, setInputFocus] = useState<InputFocus>({
-    email: false,
-    password: false,
-  })
 
   const [form, setForm] = useState<{ email: string; password: string }>({
     email: "",
     password: "",
   })
-
-  const handleFocus = useCallback((field: keyof InputFocus) => {
-    setInputFocus((prevState) => ({ ...prevState, [field]: true }))
-  }, [])
-
-  const handleBlur = useCallback((field: keyof InputFocus) => {
-    setInputFocus((prevState) => ({ ...prevState, [field]: false }))
-  }, [])
 
   const handleChange = useCallback((e: React.FormEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target as HTMLInputElement | HTMLSelectElement
@@ -67,12 +50,17 @@ export default function ModalLogin({ onClose }: ModalLoginProps) {
     }
   }
 
+  const handleCloseModalLogin = () => {
+    setLoginState({ ...loginState, hasError: {path: "", message: ""} })
+    onClose()
+  }
+
   return (
     <section className="fixed inset-0 bg-slate-200/20">
       <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 bg-black w-[35rem] rounded-2xl">
         {/* Header  */}
         <div className="flex items-center justify-between px-5 pt-3">
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-400/20">
+          <button onClick={handleCloseModalLogin} className="p-2 rounded-full hover:bg-slate-400/20">
             <IoCloseSharp className="size-7 text-white " />
           </button>
           <FaXTwitter className="size-9 text-white" />
@@ -93,9 +81,8 @@ export default function ModalLogin({ onClose }: ModalLoginProps) {
               name="email"
               id="email"
               value={form.email}
+              hasError={loginState.hasError}
               onChange={handleChange}
-              onFocus={() => handleFocus("email")}
-              onBlur={() => handleBlur("email")}
             />
 
             {/* Input Password */}
@@ -106,9 +93,8 @@ export default function ModalLogin({ onClose }: ModalLoginProps) {
               id="password"
               spanInfo="Min: 6"
               value={form.password}
+              hasError={loginState.hasError}
               onChange={handleChange}
-              onFocus={() => handleFocus("password")}
-              onBlur={() => handleBlur("password")}
             />
 
             {/* Button Next Flow */}

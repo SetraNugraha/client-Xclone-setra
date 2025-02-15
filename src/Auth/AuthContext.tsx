@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react"
+import { createContext, useState, useEffect, Dispatch, SetStateAction } from "react"
 import { jwtDecode } from "jwt-decode"
 import { useNavigate } from "react-router-dom"
 import { axiosInstance } from "../lib/axios"
@@ -18,13 +18,19 @@ interface LoginPayload {
   password: string
 }
 
+interface LoginInputError {
+  path: string
+  message: string
+}
+
 interface IAuthContext {
   login: (payload: LoginPayload) => Promise<User | undefined>
   refreshToken: () => Promise<string | null>
   logout: () => Promise<void>
+  setLoginState: Dispatch<SetStateAction<{ isLoading: boolean; hasError: LoginInputError }>>
   user: User | null
   token: string | null
-  loginState: { isLoading: boolean; hasError: object }
+  loginState: { isLoading: boolean; hasError: LoginInputError }
 }
 
 interface AuthContextProviderProps {
@@ -37,7 +43,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const navigate = useNavigate()
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
-  const [loginState, setLoginState] = useState<{ isLoading: boolean; hasError: { path: string; message: string } }>({
+  const [loginState, setLoginState] = useState<{ isLoading: boolean; hasError: LoginInputError }>({
     isLoading: false,
     hasError: { path: "", message: "" },
   })
@@ -92,8 +98,6 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
 
   const logout = async (): Promise<void> => {
     try {
-      console.log("userId: ", user?.userId)
-
       await axiosInstance.delete(`/auth/logout/${user?.userId}`)
 
       setToken(null)
@@ -178,7 +182,7 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, user?.exp])
 
-  const value: IAuthContext = { user, token, loginState, login, refreshToken, logout }
+  const value: IAuthContext = { user, token, loginState, setLoginState, login, refreshToken, logout }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

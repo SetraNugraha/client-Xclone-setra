@@ -1,5 +1,10 @@
 import { useState } from "react"
 
+interface HasError {
+  path: string | null
+  message: string | null
+}
+
 interface InputFormProps {
   label: string
   type: string
@@ -7,43 +12,29 @@ interface InputFormProps {
   name: string
   value: string
   spanInfo?: string
-  onBlur?: () => void
-  onFocus?: () => void
+  hasError?: HasError
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
 }
 
-export const FormInput = ({
-  label,
-  type = "text",
-  id,
-  name,
-  value,
-  spanInfo,
-  onBlur,
-  onFocus,
-  onChange,
-}: InputFormProps) => {
+export const FormInput = ({ label, type = "text", id, name, value, spanInfo, hasError, onChange }: InputFormProps) => {
   const [isFocus, setIsFocus] = useState<boolean>(false)
+
   return (
-    <div className="relative">
+    <div className={`relative ${hasError?.path === name && "mb-5"}`}>
       <input
         type={type}
         id={id}
         name={name}
-        className="w-full text-white text-md px-3 pt-3 h-16 bg-black border border-slate-700 rounded-md focus:outline-none focus:border-2 focus:border-sky-500 transition-colors peer"
-        onFocus={() => {
-          setIsFocus(true)
-          onFocus?.()
-        }}
-        onBlur={() => {
-          setIsFocus(false)
-          onBlur?.()
-        }}
+        className={`w-full text-white text-md px-3 pt-3 h-16 bg-black border  rounded-md focus:outline-none focus:border-2 focus:border-sky-500 transition-colors peer ${
+          hasError?.path === name ? "border-red-500" : "border-slate-700"
+        }`}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
         value={value}
         onChange={onChange}
       />
       <label
-        htmlFor="email"
+        htmlFor={id}
         className={`absolute transition-all peer-focus:text-sm peer-focus:left-3 peer-focus:to peer-focus:text-sky-500 ${
           value.length > 0
             ? "top-1 left-3 text-slate-500 text-sm"
@@ -52,8 +43,10 @@ export const FormInput = ({
         {label}
       </label>
 
-      {/* Password length */}
+      {/* Info on Right Top Input */}
       {isFocus && <span className={`text-sm absolute top-1 right-3 text-slate-500`}>{spanInfo}</span>}
+
+      {hasError?.path === name && <p className="absolute text-red-500 pt-1 pl-2">{hasError.message}</p>}
     </div>
   )
 }

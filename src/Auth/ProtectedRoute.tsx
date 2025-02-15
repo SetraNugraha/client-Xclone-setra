@@ -1,35 +1,21 @@
-import { useEffect, useState } from "react"
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect } from "react"
 import { useAuth } from "./useAuth"
-import { Navigate, Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 export const ProtectedRoute = () => {
-  const { user, token, refreshToken } = useAuth()
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const { token, refreshToken } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const checkToken = async () => {
-      try {
-        await refreshToken()
-      } catch (error) {
-        console.error("ProtectedRoute error: ", error)
-      } finally {
-        setIsLoading(false)
-      }
+    if (!token) {
+      refreshToken().catch(() => {
+        console.error("Failed to refresh token, redirecting to /auth")
+        navigate("/auth", { replace: true }) // Redirect if Fail
+      })
     }
+  }, [token])
 
-    checkToken()
-  }, [])
-
-  if (isLoading) {
-    return <div className="text-center pt-10 text-2xl font-bold">Loading ....</div>
-  }
-
-  if (!token || !user) {
-    setTimeout(() => {
-      alert("Unauthorized, login required")
-    }, 0)
-    return <Navigate to={"/auth"} replace />
-  }
-
-  return token && user ? <Outlet /> : null
+  return token ? <Outlet /> : null
 }
