@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom"
 import ModalRegister from "../components/ModalRegister"
+import ModalLogin from "../components/ModalLogin"
+import { OtherLogin } from "../components/OtherLogin"
 import { useState } from "react"
 
 type Footer = {
@@ -8,6 +9,7 @@ type Footer = {
 }
 
 export default function Auth() {
+  const [modalLogin, setModalLogin] = useState<boolean>(false)
   const [modalRegister, setModalRegister] = useState<boolean>(false)
 
   const footerMenu: Footer[] = [
@@ -104,28 +106,8 @@ export default function Auth() {
             <div className="relative flex flex-col gap-y-3 w-[350px]">
               <p className="text-[2rem] font-bold text-white mt-10 mb-3">Join today.</p>
 
-              {/* Login Google */}
-              <button className="flex items-center justify-center gap-x-3 py-2 font-semibold bg-white rounded-3xl hover:opacity-90">
-                <img src="assets/img/google-logo.png" alt="logo-google" className="size-5" />
-                Sign up with Google
-              </button>
-
-              {/* Login Apple */}
-              <button className="flex items-center justify-center gap-x-3 py-2 font-bold bg-white rounded-3xl hover:opacity-90">
-                <img src="assets/img/apple-logo.png" alt="logo-google" className="size-5" />
-                Sign up with Apple
-              </button>
-
-              {/* Or */}
-              <div className="flex items-center justify-center text-white">
-                <span className="w-full">
-                  <hr />
-                </span>
-                <p className="mx-2 mb-2 text-xl">or</p>
-                <span className="w-full">
-                  <hr />
-                </span>
-              </div>
+              {/* Other Login */}
+              <OtherLogin />
 
               {/* Create Account */}
               <button
@@ -155,11 +137,11 @@ export default function Auth() {
               {/* Sign in */}
               <div className="flex flex-col gap-y-2 absolute -bottom-32 w-full">
                 <p className="text-white font-semibold">Already have an account?</p>
-                <Link
-                  to={"/"}
+                <button
+                  onClick={() => setModalLogin(true)}
                   className="py-2 font-bold text-center bg-black rounded-3xl text-sky-500 ring-1 hover:opacity-90">
                   Sign in
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -175,7 +157,10 @@ export default function Auth() {
         </div>
       </div>
 
-      {/* Modal Section */}
+      {/* Modal Login */}
+      {modalLogin && <ModalLogin onClose={() => setModalLogin(false)} />}
+
+      {/* Modal Register */}
       {modalRegister && <ModalRegister onClose={() => setModalRegister(false)} />}
     </section>
   )

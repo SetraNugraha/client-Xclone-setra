@@ -16,6 +16,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { trendings } from "../dummyData/trending"
 import { formatNumberToK } from "../utils/footerPostNumber"
 import { useState } from "react"
+import { useAuth } from "../Auth/useAuth"
 
 type SidebarProps = {
   children: React.ReactNode
@@ -31,6 +32,7 @@ type MenuLeftBar = {
 export const Sidebar = ({ children }: SidebarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { logout } = useAuth()
   const [buttonLogout, setButtonLogout] = useState<boolean>(false)
   const menuLeftBar: MenuLeftBar[] = [
     {
@@ -100,6 +102,20 @@ export const Sidebar = ({ children }: SidebarProps) => {
       iconFilled: <CiCircleMore />,
     },
   ]
+
+  const handleLogout = async () => {
+    const isConfirmLogout: boolean = confirm("Are you sure want to logout ?")
+
+    if (isConfirmLogout) {
+      try {
+        await logout()
+        navigate("/auth")
+        alert("Logout success")
+      } catch (error) {
+        console.error("handleLogout error: ", error)
+      }
+    }
+  }
 
   return (
     <section className="bg-black h-screen overflow-hidden">
@@ -176,7 +192,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
                 Add an existing account
               </button>
               <button
-                onClick={() => navigate("/auth")}
+                onClick={handleLogout}
                 className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
                 Logout @Suma12362
               </button>
