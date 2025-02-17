@@ -7,8 +7,10 @@ import { TiArrowLeft } from "react-icons/ti"
 import { LuCalendarDays } from "react-icons/lu"
 import { useState } from "react"
 import { CardPost } from "../components/CardPost"
+import { useAuth } from "../Auth/useAuth"
 
 export default function Profile() {
+  const { user } = useAuth()
   const [activeMenu, setActiveMenu] = useState<string>("Posts")
   const menuProfile = [
     {
@@ -48,7 +50,7 @@ export default function Profile() {
 
           {/* Name & Total Posts */}
           <div className="">
-            <h1 className="font-bold text-lg text-white">Suma</h1>
+            <h1 className="font-bold text-lg text-white">{user?.name}</h1>
             <p className="text-sm text-slate-500 -mt-1">0 posts</p>
           </div>
         </div>
@@ -63,7 +65,7 @@ export default function Profile() {
           {/* Profile Image & Button Edit Profile*/}
           <div className="relative w-full">
             <img
-              src="assets/img/snorlax.png"
+              src={user?.profileImage ? user.profileImage : "assets/img/blank-profile.png"}
               alt="profile-image"
               className="size-28 rounded-full ring-[3px] ring-black absolute -top-16"
             />
@@ -75,8 +77,8 @@ export default function Profile() {
           {/* Name */}
           <div className="flex flex-col gap-y-3 pt-16">
             <div>
-              <h1 className="text-lg text-white font-bold">Suma</h1>
-              <p className="text-slate-500 text-sm">@Suma18273121</p>
+              <h1 className="text-lg text-white font-bold">{user?.name}</h1>
+              <p className="text-slate-500 text-sm">@{user?.username}</p>
             </div>
             <p className="flex items-center gap-x-2 text-slate-500 text-sm">
               <LuCalendarDays /> Joined December 2024

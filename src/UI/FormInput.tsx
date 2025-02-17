@@ -11,12 +11,23 @@ interface InputFormProps {
   id?: string
   name: string
   value: string
+  maxLength?: number
   spanInfo?: string
   hasError?: HasError
   onChange: (e: React.FormEvent<HTMLInputElement>) => void
 }
 
-export const FormInput = ({ label, type = "text", id, name, value, spanInfo, hasError, onChange }: InputFormProps) => {
+export const FormInput = ({
+  label,
+  type = "text",
+  id,
+  name,
+  value,
+  maxLength,
+  spanInfo,
+  hasError,
+  onChange,
+}: InputFormProps) => {
   const [isFocus, setIsFocus] = useState<boolean>(false)
 
   return (
@@ -25,8 +36,10 @@ export const FormInput = ({ label, type = "text", id, name, value, spanInfo, has
         type={type}
         id={id}
         name={name}
+        maxLength={maxLength}
+        required
         className={`w-full text-white text-md px-3 pt-3 h-16 bg-black border  rounded-md focus:outline-none focus:border-2 focus:border-sky-500 transition-colors peer ${
-          hasError?.path === name ? "border-red-500" : "border-slate-700"
+          hasError?.path === name || hasError?.path === "input" ? "border-red-500" : "border-slate-700"
         }`}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
@@ -46,7 +59,9 @@ export const FormInput = ({ label, type = "text", id, name, value, spanInfo, has
       {/* Info on Right Top Input */}
       {isFocus && <span className={`text-sm absolute top-1 right-3 text-slate-500`}>{spanInfo}</span>}
 
-      {hasError?.path === name && <p className="absolute text-red-500 pt-1 pl-2">{hasError.message}</p>}
+      {(hasError?.path === name || hasError?.path === "input") && (
+        <p className="absolute text-red-500 pt-1 pl-2">{hasError.message}</p>
+      )}
     </div>
   )
 }

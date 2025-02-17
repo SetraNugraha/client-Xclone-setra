@@ -6,10 +6,12 @@ import { AxiosError } from "axios"
 
 interface User {
   userId: string
+  name: string
   username: string
   email: string
   profileImage: string
   birthday: string
+  created_at: string
   exp: number
 }
 
@@ -18,19 +20,38 @@ interface LoginPayload {
   password: string
 }
 
-interface LoginInputError {
+interface RegisterPayload {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  day: string
+  month: string
+  year: string
+}
+
+interface InputError {
   path: string
   message: string
 }
 
+interface ResponseRegister {
+  success: boolean
+  message: string
+  data: User
+}
+
 interface IAuthContext {
   login: (payload: LoginPayload) => Promise<User | undefined>
+  register: (payload: RegisterPayload) => Promise<ResponseRegister | undefined>
   refreshToken: () => Promise<string | null>
   logout: () => Promise<void>
-  setLoginState: Dispatch<SetStateAction<{ isLoading: boolean; hasError: LoginInputError }>>
+  setLoginState: Dispatch<SetStateAction<{ isLoading: boolean; hasError: InputError }>>
+  setRegisterState: Dispatch<SetStateAction<{ isLoading: boolean; hasError: InputError }>>
   user: User | null
   token: string | null
-  loginState: { isLoading: boolean; hasError: LoginInputError }
+  loginState: { isLoading: boolean; hasError: InputError }
+  registerState: { isLoading: boolean; hasError: InputError }
 }
 
 interface AuthContextProviderProps {
@@ -43,7 +64,12 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
   const navigate = useNavigate()
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
-  const [loginState, setLoginState] = useState<{ isLoading: boolean; hasError: LoginInputError }>({
+  const [loginState, setLoginState] = useState<{ isLoading: boolean; hasError: InputError }>({
+    isLoading: false,
+    hasError: { path: "", message: "" },
+  })
+
+  const [registerState, setRegisterState] = useState<{ isLoading: boolean; hasError: InputError }>({
     isLoading: false,
     hasError: { path: "", message: "" },
   })
@@ -93,6 +119,49 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
       }
     } finally {
       setLoginState((prevState) => ({ ...prevState, isLoading: false }))
+    }
+  }
+
+  const register = async (payload: RegisterPayload): Promise<ResponseRegister | undefined> => {
+    setRegisterState((prevState) => ({ ...prevState, isLoading: true }))
+    try {
+      const response = await axiosInstance.post("/auth/register", payload)
+      return response.data
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        // Network error
+        if (!error.response) {
+          console.error("Network error: ", error.message)
+          alert("Network error! please check your internet connection.")
+          return
+        }
+
+        // Error based on status
+        const { status, data } = error.response
+        console.error(`Error ${status}: `, data)
+
+        if (status === 403) {
+          throw new Error("Unauthorized")
+        } else if (status === 500) {
+          throw new Error("Internal server error")
+        }
+
+        // User Input Error
+        if (data?.path && data?.message) {
+          setRegisterState((prevState) => ({
+            ...prevState,
+            hasError: {
+              path: data.path,
+              message: data.message,
+            },
+          }))
+        }
+      } else {
+        console.error("Unexpected error: ", error)
+        throw new Error("Something went wrong! Please try again later.")
+      }
+    } finally {
+      setRegisterState((prevState) => ({ ...prevState, isLoading: false }))
     }
   }
 
@@ -182,7 +251,18 @@ export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, user?.exp])
 
-  const value: IAuthContext = { user, token, loginState, setLoginState, login, refreshToken, logout }
+  const value: IAuthContext = {
+    user,
+    token,
+    loginState,
+    setLoginState,
+    registerState,
+    setRegisterState,
+    login,
+    register,
+    refreshToken,
+    logout,
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

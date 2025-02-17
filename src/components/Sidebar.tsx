@@ -32,7 +32,7 @@ type MenuLeftBar = {
 export const Sidebar = ({ children }: SidebarProps) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { user, logout } = useAuth()
   const [buttonLogout, setButtonLogout] = useState<boolean>(false)
   const menuLeftBar: MenuLeftBar[] = [
     {
@@ -103,6 +103,9 @@ export const Sidebar = ({ children }: SidebarProps) => {
     },
   ]
 
+  const name = user?.name.split(" ")
+  const normalizeName = !name ? "Undefined Name" : name[0] + " " + name[1]
+
   const handleLogout = async () => {
     const isConfirmLogout: boolean = confirm("Are you sure want to logout ?")
 
@@ -167,13 +170,17 @@ export const Sidebar = ({ children }: SidebarProps) => {
             <div className="z-10 flex items-center gap-x-3 pl-2">
               {/* Image */}
               <div>
-                <img src="assets/img/snorlax.png" alt="profile-image" className="size-10 rounded-full" />
+                <img
+                  src={user?.profileImage ? user.profileImage : "assets/img/blank-profile.png"}
+                  alt="profile-image"
+                  className="size-10 rounded-full"
+                />
               </div>
 
               {/* Name & Username */}
-              <div>
-                <p className="text-white font-bold text-sm">Suma</p>
-                <p className="text-slate-500 text-sm">@Suma22123113</p>
+              <div className="text-start">
+                <p className="text-white font-bold text-sm pl-1">{normalizeName}</p>
+                <p className="text-slate-500 text-sm">@{user?.username}</p>
               </div>
             </div>
 
@@ -194,7 +201,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
               <button
                 onClick={handleLogout}
                 className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
-                Logout @Suma12362
+                Logout {user?.username}
               </button>
             </div>
           </section>

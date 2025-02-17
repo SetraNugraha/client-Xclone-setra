@@ -51,7 +51,7 @@ export default function ModalLogin({ onClose }: ModalLoginProps) {
   }
 
   const handleCloseModalLogin = () => {
-    setLoginState({ ...loginState, hasError: {path: "", message: ""} })
+    setLoginState({ ...loginState, hasError: { path: "", message: "" } })
     onClose()
   }
 
@@ -99,9 +99,9 @@ export default function ModalLogin({ onClose }: ModalLoginProps) {
 
             {/* Button Next Flow */}
             <button
-              disabled={!form.email || !form.password}
+              disabled={!form.email || !form.password || loginState.isLoading}
               className="p-3 disabled:bg-slate-100/30 bg-blue-500 text-white hover:bg-blue-500/70 rounded-3xl font-bold tracking-wider mt-3">
-              Login
+              {loginState.isLoading ? "Loading ..." : "Login"}
             </button>
           </form>
 

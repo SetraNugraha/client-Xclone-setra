@@ -1,18 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react"
 import { useAuth } from "./useAuth"
-import { Outlet } from "react-router-dom"
-import { useNavigate } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
 
 export const ProtectedRoute = () => {
-  const { token, refreshToken } = useAuth()
   const navigate = useNavigate()
+  const { token, refreshToken } = useAuth()
 
   useEffect(() => {
     if (!token) {
-      refreshToken().catch(() => {
-        console.error("Failed to refresh token, redirecting to /auth")
-        navigate("/auth", { replace: true }) // Redirect if Fail
+      refreshToken().catch((error) => {
+        console.error("Protected Route error: ", error)
+        alert("Unauthorized, Login required.")
+        navigate("/auth", { replace: true })
       })
     }
   }, [token])
