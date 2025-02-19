@@ -1,6 +1,9 @@
 import { useState } from "react"
 import { Sidebar } from "../components/Sidebar"
 import { MdOutlineGifBox } from "react-icons/md"
+import { CardPost } from "../components/CardPost"
+import { usePosts } from "../hooks/usePosts"
+import { useAuth } from "../Auth/useAuth"
 
 import { VscSettings } from "react-icons/vsc"
 import { BsEmojiSmile } from "react-icons/bs"
@@ -8,10 +11,6 @@ import { RiCalendarScheduleLine } from "react-icons/ri"
 import { BiMap } from "react-icons/bi"
 import { LuImage } from "react-icons/lu"
 import { GiEarthAmerica } from "react-icons/gi"
-
-// CardPost
-import { posts } from "../dummyData/data"
-import { CardPost } from "../components/CardPost"
 
 interface PostCategory {
   id: string
@@ -24,14 +23,49 @@ const postCategories: PostCategory[] = [
 ]
 
 export default function Homepage() {
+  const { user } = useAuth()
+  const { data: posts, isLoading, createPost } = usePosts()
   const [activeCategory, setActiveCategory] = useState<string>("forYou")
   const [isFocusBodyPost, setIsFocusBodyPost] = useState<boolean>(false)
-  const [hasBodyPost, setHasBodyPost] = useState<string>("")
+
+  const [formPost, setFormPost] = useState<{ body: string; postImage: File | null }>({
+    body: "",
+    postImage: null,
+  })
 
   const handleInputBodyPost = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.preventDefault()
+
     e.target.style.height = "auto"
     e.target.style.height = `${e.target.scrollHeight}px`
-    setHasBodyPost(e.target.value)
+    setFormPost((prevState) => ({ ...prevState, body: e.target.value }))
+  }
+
+  const handleInputPostImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setFormPost((prevState) => ({ ...prevState, postImage: file }))
+    }
+  }
+
+  const handleCreateNewPost = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    try {
+      createPost.mutate(formPost, {
+        onSuccess: () => {
+          setFormPost({ body: "", postImage: null })
+          alert("Success Create Post")
+        },
+        onError: (error) => {
+          console.error("error create post mutate: ", error)
+          alert("Unexpected error, Please try again later.")
+        },
+      })
+    } catch (error) {
+      console.error("handle create new post error", error)
+      alert("Unexpected error, Please try again later.")
+    }
   }
 
   return (
@@ -58,7 +92,11 @@ export default function Homepage() {
           {/* Profile Image & Input Post*/}
           <div className="flex items-start gap-x-3 m-5">
             <div className="">
-              <img src="assets/img/snorlax.png" alt="profile-image" className="rounded-full size-12 mx-1" />
+              <img
+                src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"}
+                alt="profile-image"
+                className="rounded-full size-12 mx-1"
+              />
             </div>
 
             {/* Input Text Post */}
@@ -66,14 +104,14 @@ export default function Homepage() {
               {/* Input Text Post */}
               <div className="relative">
                 <textarea
-                  name="post"
+                  name="body"
                   id="post"
                   placeholder="What is happening?!"
                   maxLength={1000}
                   className={`bg-black text-white w-full p-2 placeholder:text-xl resize-none focus:outline-none scrollbar-hide ${
                     isFocusBodyPost && "pb-12 border-b border-slate-600"
                   }`}
-                  value={hasBodyPost}
+                  value={formPost.body}
                   rows={1}
                   onFocus={() => setIsFocusBodyPost(true)}
                   onChange={handleInputBodyPost}></textarea>
@@ -88,6 +126,18 @@ export default function Homepage() {
                 )}
               </div>
 
+              {/* Displat Image Name */}
+              {formPost.postImage && (
+                <span className="text-slate-500 ml-2 text-sm flex items-center gap-x-2">
+                  {formPost.postImage?.name}
+                  <button
+                    className="text-sm font-bold text-red-500/70 mt-1"
+                    onClick={() => setFormPost((prevState) => ({ ...prevState, postImage: null }))}>
+                    X
+                  </button>
+                </span>
+              )}
+
               {/* Addons & Button Create Post */}
               <div className="mt-5 ml-2 flex items-center justify-between ">
                 {/* Addons */}
@@ -97,7 +147,7 @@ export default function Homepage() {
                     <label htmlFor="upload-image" className="hover:cursor-pointer hover:opacity-70">
                       <LuImage size={23} className="text-blue-500" />
                     </label>
-                    <input hidden type="file" name="upload-image" id="upload-image" />
+                    <input hidden type="file" name="postImage" id="upload-image" onChange={handleInputPostImage} />
                   </div>
 
                   {/* GIF */}
@@ -142,11 +192,16 @@ export default function Homepage() {
                 </div>
 
                 {/* Button Create Post */}
-                <form action="">
+                <form onSubmit={handleCreateNewPost}>
                   <button
-                    disabled={hasBodyPost === "" || hasBodyPost === null || hasBodyPost === undefined}
+                    disabled={
+                      formPost.body === "" ||
+                      formPost.body === null ||
+                      formPost.body === undefined ||
+                      createPost.isPending
+                    }
                     className="py-2 px-4 rounded-[3rem] font-bold tracking-wider bg-blue-500 text-white disabled:bg-slate-400 disabled:text-black hover:opacity-70">
-                    Post
+                    {createPost.isPending ? "Loading ..." : "Post"}
                   </button>
                 </form>
               </div>
@@ -154,10 +209,16 @@ export default function Homepage() {
           </div>
         </div>
 
-        {/* Render Card Post */}
-        {posts.map((post, index) => {
-          return <CardPost key={index} data={post} />
-        })}
+        {/* Reder Posts */}
+        {isLoading ? (
+          <div className="text-white text-lg font-semibold text-center mt-10">Loading ....</div>
+        ) : !posts || posts.length === 0 ? (
+          <div className="text-white text-center font-semibold mt-2">No Posts</div>
+        ) : (
+          posts.map((post, index) => {
+            return <CardPost key={index} post={post} />
+          })
+        )}
       </div>
     </Sidebar>
   )

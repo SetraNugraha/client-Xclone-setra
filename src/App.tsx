@@ -12,11 +12,11 @@ export default function App() {
       <AuthContextProvider>
         <Routes>
           <Route path={"/auth"} element={<Auth />} />
-          
+
           <Route element={<ProtectedRoute />}>
             <Route path={"/"} element={<Homepage />} />
-            <Route path={"/profile"} element={<Profile />} />
-            <Route path={"/detail-post"} element={<DetailPost />} />
+            <Route path={"/profile/:userId"} element={<Profile />} />
+            <Route path={"/detail-post/:postId"} element={<DetailPost />} />
           </Route>
         </Routes>
       </AuthContextProvider>

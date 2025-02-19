@@ -1,16 +1,19 @@
-import { Link } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { Sidebar } from "../components/Sidebar"
-import { posts } from "../dummyData/data"
 
 // Icons
 import { TiArrowLeft } from "react-icons/ti"
 import { LuCalendarDays } from "react-icons/lu"
 import { useState } from "react"
 import { CardPost } from "../components/CardPost"
-import { useAuth } from "../Auth/useAuth"
+import { usePosts } from "../hooks/usePosts"
+import { useUsers } from "../hooks/useUsers"
 
 export default function Profile() {
-  const { user } = useAuth()
+  const { userId } = useParams()
+  const { data: user } = useUsers(userId)
+  const { data: posts, isLoading } = usePosts(undefined, userId)
+
   const [activeMenu, setActiveMenu] = useState<string>("Posts")
   const menuProfile = [
     {
@@ -38,6 +41,9 @@ export default function Profile() {
       title: "Likes",
     },
   ]
+
+  if (!posts) return
+
   return (
     <Sidebar>
       <section>
@@ -51,13 +57,13 @@ export default function Profile() {
           {/* Name & Total Posts */}
           <div className="">
             <h1 className="font-bold text-lg text-white">{user?.name}</h1>
-            <p className="text-sm text-slate-500 -mt-1">0 posts</p>
+            <p className="text-sm text-slate-500 -mt-1">{posts.length} posts</p>
           </div>
         </div>
 
         {/* Banner Image */}
         <div className="bg-gray-700 h-48 border-b border-slate-600">
-          <img src="assets/img/download.jpeg" alt="banner-image" className="w-full h-full object-cover" />
+          <img src="/assets/img/download.jpeg" alt="banner-image" className="w-full h-full object-cover" />
         </div>
 
         {/* Detail Profile */}
@@ -65,7 +71,7 @@ export default function Profile() {
           {/* Profile Image & Button Edit Profile*/}
           <div className="relative w-full">
             <img
-              src={user?.profileImage ? user.profileImage : "assets/img/blank-profile.png"}
+              src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"}
               alt="profile-image"
               className="size-28 rounded-full ring-[3px] ring-black absolute -top-16"
             />
@@ -114,10 +120,16 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Example Post */}
-        {posts.map((post, index) => {
-          return <CardPost key={index} data={post} />
-        })}
+        {/* Reder Posts */}
+        {isLoading ? (
+          <div className="text-white text-lg font-semibold text-center mt-10">Loading ....</div>
+        ) : !posts || posts.length === 0 ? (
+          <div className="text-white text-center font-semibold mt-2">No Posts</div>
+        ) : (
+          posts.map((post, index) => {
+            return <CardPost key={index} post={post} />
+          })
+        )}
       </section>
     </Sidebar>
   )

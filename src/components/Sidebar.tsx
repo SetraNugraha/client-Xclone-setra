@@ -14,7 +14,7 @@ import { IoPersonOutline, IoPersonSharp } from "react-icons/io5"
 
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { trendings } from "../dummyData/trending"
-import { formatNumberToK } from "../utils/footerPostNumber"
+import { formatNumberToK } from "../utils/formatNumberToK"
 import { useState } from "react"
 import { useAuth } from "../Auth/useAuth"
 
@@ -90,7 +90,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
       iconFilled: <AiOutlineThunderbolt />,
     },
     {
-      path: "/profile",
+      path: `/profile/${user!.userId}`,
       title: "Profile",
       iconOutline: <IoPersonOutline />,
       iconFilled: <IoPersonSharp />,
@@ -103,8 +103,8 @@ export const Sidebar = ({ children }: SidebarProps) => {
     },
   ]
 
-  const name = user?.name.split(" ")
-  const normalizeName = !name ? "Undefined Name" : name[0] + " " + name[1]
+  const name = user?.name.split(" ") ?? "Undefined Name"
+  const normalizeName = name.length > 1 ? name[0] + " " + name[1] : name[0]
 
   const handleLogout = async () => {
     const isConfirmLogout: boolean = confirm("Are you sure want to logout ?")
@@ -171,7 +171,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
               {/* Image */}
               <div>
                 <img
-                  src={user?.profileImage ? user.profileImage : "assets/img/blank-profile.png"}
+                  src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"}
                   alt="profile-image"
                   className="size-10 rounded-full"
                 />
@@ -236,7 +236,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
             <h1 className="font-bold text-xl">What's Happening</h1>
 
             <div className="flex items-start gap-x-5 w-[90%]">
-              <img src="assets/img/snorlax.png" alt="news-image" className="rounded-[14px] size-20" />
+              <img src="/assets/img/snorlax.png" alt="news-image" className="rounded-[14px] size-20" />
               <div>
                 <h1 className="font-bold uppercase">snorlax is still sleeping</h1>
                 <p className="text-slate-500 text-sm">December 5, 2024</p>
@@ -282,7 +282,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
                   {/* Profile Image */}
                   <Link to={"#"}>
                     <img
-                      src="assets/img/snorlax.png"
+                      src="/assets/img/snorlax.png"
                       alt="profile-image"
                       className="size-9 rounded-full hover:opacity-80"
                     />
@@ -311,7 +311,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
                   {/* Profile Image */}
                   <Link to={"#"}>
                     <img
-                      src="assets/img/download.jpeg"
+                      src="/assets/img/download.jpeg"
                       alt="profile-image"
                       className="size-9 rounded-full hover:opacity-80"
                     />
@@ -340,7 +340,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
                   {/* Profile Image */}
                   <Link to={"#"}>
                     <img
-                      src="assets/img/example-post-img.jpg"
+                      src="/assets/img/example-post-img.jpg"
                       alt="profile-image"
                       className="size-9 rounded-full hover:opacity-80"
                     />

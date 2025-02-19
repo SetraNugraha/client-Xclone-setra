@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom"
 import { Sidebar } from "../components/Sidebar"
-import { formatNumberToK } from "../utils/footerPostNumber"
+import { formatNumberToK } from "../utils/formatNumberToK"
 import { useState } from "react"
 import { FooterCardPost } from "../components/FooterCardPost"
+import { useParams } from "react-router-dom"
 
 // Icons
 import { TiArrowLeft } from "react-icons/ti"
@@ -16,8 +17,13 @@ import { BsEmojiSmile } from "react-icons/bs"
 import { BiMap } from "react-icons/bi"
 import { LuImage } from "react-icons/lu"
 import { MdOutlineGifBox } from "react-icons/md"
+import { usePosts } from "../hooks/usePosts"
+import { formatDate } from "../utils/formatDate"
 
 export default function DetailPost() {
+  const { postId } = useParams()
+  const { data: post } = usePosts(postId)
+
   const [isCommentFocus, setIsCommentFocus] = useState<boolean>(false)
   const [hasComment, setHasComment] = useState<string>("")
   const handleInputComment = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -25,6 +31,8 @@ export default function DetailPost() {
     e.target.style.height = `${e.target.scrollHeight}px`
     setHasComment(e.target.value)
   }
+
+  if (!post) return
 
   return (
     <Sidebar>
@@ -48,14 +56,18 @@ export default function DetailPost() {
           <div className="flex items-center gap-x-3">
             {/* Profile Image */}
             <Link to={"/profile"}>
-              <img src="assets/img/snorlax.png" alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
+              <img
+                src={post[0].user.profileImage ?? "/assets/img/blank-profile.png"}
+                alt="profile-image"
+                className="size-10 rounded-full hover:opacity-70"
+              />
             </Link>
             {/* Name & Username */}
             <div className="flex flex-col">
               <Link to={"/profile"} className="font-semibold text-white hover:underline">
-                Suma
+                {post[0].user.name}
               </Link>
-              <p className="text-slate-500 text-sm -mt-1">@suma88172312</p>
+              <p className="text-slate-500 text-sm -mt-1">@{post[0].user.username}</p>
             </div>
           </div>
           {/* Button option user */}
@@ -66,18 +78,13 @@ export default function DetailPost() {
 
         {/* Body Post */}
         <div className="mx-5 mt-3">
-          <p className="text-white text-justify">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Eveniet, maxime officiis molestiae placeat est
-            dolorem! Iusto eligendi quasi consequuntur ab, quam blanditiis voluptatibus vero tempore tenetur voluptate
-            eum ullam, dolorem ipsam fuga eveniet accusantium officia impedit itaque doloribus? Enim assumenda
-            voluptatum excepturi, architecto amet dignissimos eaque sapiente nulla porro ipsa.
-          </p>
+          <p className="text-white text-justify">{post[0].body}</p>
 
           {/* Date & Views */}
           <div className="flex items-center gap-x-3 mt-5">
-            <p className="text-slate-500">Dec 15, 2024</p>
+            <p className="text-slate-500">{formatDate(post[0].created_at)}</p>
             <p className="text-white font-semibold">
-              1.2K <span className="text-slate-500 font-normal">Views</span>
+              0 <span className="text-slate-500 font-normal">Views</span>
             </p>
           </div>
 
@@ -87,7 +94,7 @@ export default function DetailPost() {
               {/* Comments */}
               <button className="flex items-center gap-x-1  hover:text-blue-500 group">
                 <HiOutlineChatBubbleOvalLeft size={20} />
-                <p>{formatNumberToK(0)}</p>
+                <p>{formatNumberToK(post[0]._count.comment)}</p>
               </button>
 
               {/* Respost */}
@@ -99,7 +106,7 @@ export default function DetailPost() {
               {/* Like */}
               <button className="flex items-center gap-x-1  hover:text-red-500">
                 <IoMdHeartEmpty size={20} />
-                <p>{formatNumberToK(0)}</p>
+                <p>{formatNumberToK(post[0]._count.like)}</p>
               </button>
 
               {/* Views */}
@@ -123,8 +130,12 @@ export default function DetailPost() {
           <span className="absolute bottom-0 border border-slate-800 w-full"></span>
           <div className="mx-5 flex items-start">
             {/* Profile Image */}
-            <Link to={"/profile"} className="w-[12%] hover:opacity-70">
-              <img src="assets/img/snorlax.png" alt="profile-image" className="size-10 rounded-full" />
+            <Link to={`/profile/${post[0].userId}`} className="w-[12%] hover:opacity-70">
+              <img
+                src={post[0].user.profileImage ?? "/assets/img/blank-profile.png"}
+                alt="profile-image"
+                className="size-10 rounded-full"
+              />
             </Link>
 
             {/* Input Comment */}
@@ -198,83 +209,49 @@ export default function DetailPost() {
           </div>
         </div>
 
-        {/* Comment 1 */}
-        <div className="relative flex items-start px-5 py-4">
-          {/* Border Bottom */}
-          <span className="absolute w-full border border-slate-800 bottom-0 -mx-5"></span>
+        {/* Comments Section */}
+        {post[0].comment?.map((comment, index) => {
+          const getProfileImage = comment.user.profileImage
+          const profileImage = getProfileImage ? getProfileImage : "/assets/img/blank-profile.png"
+          return (
+            <div className="relative flex items-start px-5 py-4" key={index}>
+              {/* Border Bottom */}
+              <span className="absolute w-full border border-slate-800 bottom-0 -mx-5"></span>
 
-          {/* Profile Image */}
-          <Link className="w-[10%]" to={"/profile"}>
-            <img src="assets/img/snorlax.png" alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
-          </Link>
+              {/* Profile Image */}
+              <Link className="w-[10%]" to={`/profile/${comment.userId}`}>
+                <img src={profileImage} alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
+              </Link>
 
-          {/* username & body comment */}
-          <div>
-            {/* Username */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-x-2">
-                <Link to={"/profile"} className="text-white font-semibold hover:underline">
-                  Suma
-                </Link>
-                <p className="text-sm text-slate-500">@suma99127312</p>
+              {/* username & body comment */}
+              <div className="w-full">
+                {/* Username */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-x-2">
+                    <Link to={`/profile/${comment.userId}`} className="text-white font-semibold hover:underline">
+                      {comment.user.name}
+                    </Link>
+                    <p className="text-sm text-slate-500">@{comment.user.username}</p>
+                  </div>
+
+                  <button>
+                    <BsThreeDots className="size-6 text-slate-500 hover:text-blue-500" />
+                  </button>
+                </div>
+
+                {/* Body comment */}
+                <div>
+                  <p className="text-white text-justify">{comment.body}</p>
+                </div>
+
+                {/* Footer Comment */}
+                <div className="-mx-2 mt-5">
+                  <FooterCardPost post={null} />
+                </div>
               </div>
-
-              <button>
-                <BsThreeDots className="size-6 text-slate-500 hover:text-blue-500" />
-              </button>
             </div>
-
-            {/* Body comment */}
-            <div>
-              <p className="text-white text-justify">
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptatem, exercitationem.
-              </p>
-            </div>
-
-            {/* Footer Comment */}
-            <div className="-mx-2 mt-5">
-              <FooterCardPost post={null} />
-            </div>
-          </div>
-        </div>
-
-        {/* Comment 2 */}
-        <div className="relative flex items-start px-5 py-4">
-          {/* Border Bottom */}
-          <span className="absolute w-full border border-slate-800 bottom-0 -mx-5"></span>
-
-          {/* Profile Image */}
-          <Link className="w-[10%]" to={"/profile"}>
-            <img src="assets/img/download.jpeg" alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
-          </Link>
-
-          {/* username & body comment */}
-          <div className="w-full">
-            {/* Username */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-x-2">
-                <Link to={"/profile"} className="text-white font-semibold hover:underline">
-                  Budiono Siregar
-                </Link>
-                <p className="text-sm text-slate-500">@kapalbudino2213</p>
-              </div>
-
-              <button>
-                <BsThreeDots className="size-6 text-slate-500 hover:text-blue-500" />
-              </button>
-            </div>
-
-            {/* Body comment */}
-            <div>
-              <p className="text-white text-justify">Kapal Lawdd</p>
-            </div>
-
-            {/* Footer Comment */}
-            <div className="-mx-2 mt-5">
-              <FooterCardPost post={null} />
-            </div>
-          </div>
-        </div>
+          )
+        })}
       </section>
     </Sidebar>
   )
