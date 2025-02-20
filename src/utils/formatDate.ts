@@ -1,12 +1,14 @@
 import { format, formatDistanceToNow, isToday } from "date-fns"
-import { id } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 
 export const formatDate = (dateString: string) => {
   const date = new Date(dateString)
 
   if (isToday(date)) {
-    return formatDistanceToNow(date, { addSuffix: false, locale: id })
+    const distanceDate = formatDistanceToNow(date, { addSuffix: true, locale: enUS })
+
+    return distanceDate.replace("about", "")
   } else {
-    return format(date, "d MMM", { locale: id })
+    return format(date, "d MMM", { locale: enUS })
   }
 }

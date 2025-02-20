@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { Sidebar } from "../components/Sidebar"
 import { MdOutlineGifBox } from "react-icons/md"
 import { CardPost } from "../components/CardPost"
@@ -48,25 +48,28 @@ export default function Homepage() {
     }
   }
 
-  const handleCreateNewPost = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleCreateNewPost = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
 
-    try {
-      createPost.mutate(formPost, {
-        onSuccess: () => {
-          setFormPost({ body: "", postImage: null })
-          alert("Success Create Post")
-        },
-        onError: (error) => {
-          console.error("error create post mutate: ", error)
-          alert("Unexpected error, Please try again later.")
-        },
-      })
-    } catch (error) {
-      console.error("handle create new post error", error)
-      alert("Unexpected error, Please try again later.")
-    }
-  }
+      try {
+        createPost.mutate(formPost, {
+          onSuccess: () => {
+            setFormPost({ body: "", postImage: null })
+            alert("Success Create Post")
+          },
+          onError: (error) => {
+            console.error("error create post mutate: ", error)
+            alert("Unexpected error, Please try again later.")
+          },
+        })
+      } catch (error) {
+        console.error("handle create new post error", error)
+        alert("Unexpected error, Please try again later.")
+      }
+    },
+    [createPost, formPost],
+  )
 
   return (
     <Sidebar>

@@ -4,6 +4,8 @@ import { formatNumberToK } from "../utils/formatNumberToK"
 import { useState } from "react"
 import { FooterCardPost } from "../components/FooterCardPost"
 import { useParams } from "react-router-dom"
+import { usePosts } from "../hooks/usePosts"
+import { formatDate } from "../utils/formatDate"
 
 // Icons
 import { TiArrowLeft } from "react-icons/ti"
@@ -17,12 +19,11 @@ import { BsEmojiSmile } from "react-icons/bs"
 import { BiMap } from "react-icons/bi"
 import { LuImage } from "react-icons/lu"
 import { MdOutlineGifBox } from "react-icons/md"
-import { usePosts } from "../hooks/usePosts"
-import { formatDate } from "../utils/formatDate"
 
 export default function DetailPost() {
+  const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
   const { postId } = useParams()
-  const { data: post } = usePosts(postId)
+  const { data: post, handleToggleLike } = usePosts(postId)
 
   const [isCommentFocus, setIsCommentFocus] = useState<boolean>(false)
   const [hasComment, setHasComment] = useState<string>("")
@@ -80,6 +81,17 @@ export default function DetailPost() {
         <div className="mx-5 mt-3">
           <p className="text-white text-justify">{post[0].body}</p>
 
+          {/* POST IMAGE */}
+          {post[0].postImage && (
+            <div className="max-w-full my-5">
+              <img
+                src={`${POSTS_IMAGE_URL + post[0].postImage}`}
+                alt="post-image"
+                className="rounded-2xl max-h-[35rem] min-w-[70%]"
+              />
+            </div>
+          )}
+
           {/* Date & Views */}
           <div className="flex items-center gap-x-3 mt-5">
             <p className="text-slate-500">{formatDate(post[0].created_at)}</p>
@@ -90,37 +102,7 @@ export default function DetailPost() {
 
           {/* Footer Card Detail Post */}
           <div className="mt-5 py-3 border-y border-slate-800">
-            <div className="relative text-slate-500 capitalize flex items-center justify-between mx-2 pr-40">
-              {/* Comments */}
-              <button className="flex items-center gap-x-1  hover:text-blue-500 group">
-                <HiOutlineChatBubbleOvalLeft size={20} />
-                <p>{formatNumberToK(post[0]._count.comment)}</p>
-              </button>
-
-              {/* Respost */}
-              <button className="flex items-center gap-x-1  hover:text-green-500">
-                <BiGitCompare size={20} />
-                <p>{formatNumberToK(0)}</p>
-              </button>
-
-              {/* Like */}
-              <button className="flex items-center gap-x-1  hover:text-red-500">
-                <IoMdHeartEmpty size={20} />
-                <p>{formatNumberToK(post[0]._count.like)}</p>
-              </button>
-
-              {/* Views */}
-              <button className="flex items-center gap-x-1  hover:text-blue-500">
-                <FiBookmark size={20} />
-                <p>{formatNumberToK(0)}</p>
-              </button>
-              <div className="absolute right-0 flex items-center gap-x-3 text-slate-500">
-                {/* Upload */}
-                <button>
-                  <PiUploadSimpleBold size={20} className="hover:text-blue-500" />
-                </button>
-              </div>
-            </div>
+            <FooterCardPost post={post[0]} toggleLike={() => handleToggleLike(post[0].id)} />
           </div>
         </div>
 
@@ -246,7 +228,38 @@ export default function DetailPost() {
 
                 {/* Footer Comment */}
                 <div className="-mx-2 mt-5">
-                  <FooterCardPost post={null} />
+                  {/* <FooterCardPost post={post[0]} /> */}
+                  <div className="relative text-slate-500 capitalize flex items-center justify-between mx-2 pr-40">
+                    {/* Comments */}
+                    <button className="flex items-center gap-x-1  hover:text-blue-500 group">
+                      <HiOutlineChatBubbleOvalLeft size={20} />
+                      <p>{formatNumberToK(0)}</p>
+                    </button>
+
+                    {/* Respost */}
+                    <button className="flex items-center gap-x-1  hover:text-green-500">
+                      <BiGitCompare size={20} />
+                      <p>{formatNumberToK(0)}</p>
+                    </button>
+
+                    {/* Like */}
+                    <button className="flex items-center gap-x-1  hover:text-red-500">
+                      <IoMdHeartEmpty size={20} />
+                      <p>{formatNumberToK(post[0]._count.like)}</p>
+                    </button>
+
+                    {/* Views */}
+                    <button className="flex items-center gap-x-1  hover:text-blue-500">
+                      <FiBookmark size={20} />
+                      <p>{formatNumberToK(0)}</p>
+                    </button>
+                    <div className="absolute right-0 flex items-center gap-x-3 text-slate-500">
+                      {/* Upload */}
+                      <button>
+                        <PiUploadSimpleBold size={20} className="hover:text-blue-500" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

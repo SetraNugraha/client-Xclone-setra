@@ -1,15 +1,15 @@
 import { Link, useParams } from "react-router-dom"
 import { Sidebar } from "../components/Sidebar"
-
-// Icons
 import { TiArrowLeft } from "react-icons/ti"
 import { LuCalendarDays } from "react-icons/lu"
-import { useState } from "react"
+import {  useState } from "react"
 import { CardPost } from "../components/CardPost"
 import { usePosts } from "../hooks/usePosts"
 import { useUsers } from "../hooks/useUsers"
+import { useAuth } from "../Auth/useAuth"
 
 export default function Profile() {
+  const { user: AuthUser } = useAuth()
   const { userId } = useParams()
   const { data: user } = useUsers(userId)
   const { data: posts, isLoading } = usePosts(undefined, userId)
@@ -75,9 +75,11 @@ export default function Profile() {
               alt="profile-image"
               className="size-28 rounded-full ring-[3px] ring-black absolute -top-16"
             />
-            <button className="px-3 py-1 border border-slate-400 font-bold text-white text-sm rounded-[3rem] absolute right-0 top-2">
-              Edit Profile
-            </button>
+            {AuthUser?.userId === userId && (
+              <button className="px-3 py-1 border border-slate-400 font-bold text-white text-sm rounded-[3rem] absolute right-0 top-2">
+                Edit Profile
+              </button>
+            )}
           </div>
 
           {/* Name */}

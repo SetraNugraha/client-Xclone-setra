@@ -22,6 +22,7 @@ export interface Posts {
   created_at: string
   updated: string
   user: UserPostsDTO
+  like: [{ userId: string }]
   comment: Comments[] | null
   _count: { like: number; comment: number }
 }
