@@ -1,5 +1,5 @@
 import { useAuth } from "../Auth/useAuth"
-import { useQuery, useMutation } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { axiosInstance } from "../lib/axios"
 import { Posts } from "../types/posts.type"
 import { CreateNewPosts } from "../types/posts.type"
@@ -8,30 +8,24 @@ import { useCallback } from "react"
 export const usePosts = (postId?: string, userId?: string) => {
   const baseURL: string = import.meta.env.VITE_BASE_URL
   const { token } = useAuth()
+  const queryClient = useQueryClient()
 
   // GET POSTS
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["posts", postId, userId],
     queryFn: async () => {
       let endpoint = `${baseURL}/posts`
 
       if (postId) {
         endpoint = `${baseURL}/posts/${postId}`
-      }
-
-      if (userId) {
+      } else if (userId) {
         endpoint = `${baseURL}/posts/user/${userId}`
       }
 
-      try {
-        const response = await axiosInstance.get(endpoint)
-        const posts: Posts[] = response.data.data
+      const response = await axiosInstance.get(endpoint)
+      const posts: Posts[] = response.data.data
 
-        return posts
-      } catch (error) {
-        console.error("fetch post error: ", error)
-        return []
-      }
+      return posts
     },
   })
 
@@ -48,7 +42,7 @@ export const usePosts = (postId?: string, userId?: string) => {
       return response
     },
     onSuccess: () => {
-      refetch()
+      queryClient.invalidateQueries({ queryKey: ["posts"] })
     },
     onError: (error) => {
       console.error("create posts error: ", error)
@@ -67,24 +61,44 @@ export const usePosts = (postId?: string, userId?: string) => {
       return response.data
     },
     onSuccess: () => {
-      refetch()
+      queryClient.invalidateQueries({ queryKey: ["posts", postId] })
     },
     onError: (error) => {
       console.error("Toggle like error: ", error)
+      alert("Unexpected error occured, please try again later.")
     },
   })
 
+  // Function for BUTTON LIKE
   const handleToggleLike = useCallback(
     (postId: string) => {
-      try {
-        toggleLike.mutate(postId)
-      } catch (error) {
-        console.error("handle toggle like error: ", error)
-        alert("Unexpected error occured, please try again later.")
-      }
+      toggleLike.mutate(postId)
     },
     [toggleLike],
   )
 
-  return { data, isLoading, refetch, createPost, toggleLike, handleToggleLike }
+  const createNewComment = useMutation({
+    mutationFn: async (body: string) => {
+      const response = await axiosInstance.post(
+        `${baseURL}/posts/${postId}/comment/create`,
+        { body },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts", postId] })
+    },
+    onError: (error) => {
+      console.error("error create new comment: ", error)
+      alert("Unexpected error occured, Please try again later.")
+    },
+  })
+
+  return { data, isLoading, isError, error, createPost, toggleLike, handleToggleLike, createNewComment }
 }

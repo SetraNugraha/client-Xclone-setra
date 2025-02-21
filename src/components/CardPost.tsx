@@ -4,6 +4,7 @@ import { FooterCardPost } from "./FooterCardPost"
 import { BsThreeDots } from "react-icons/bs"
 import { formatDate } from "../utils/formatDate"
 import { usePosts } from "../hooks/usePosts"
+import { useAuth } from "../Auth/useAuth"
 
 interface CardPostProps {
   post: Posts
@@ -11,8 +12,9 @@ interface CardPostProps {
 
 export const CardPost = ({ post }: CardPostProps) => {
   const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
+  const { user } = useAuth()
   const { handleToggleLike } = usePosts()
-  
+
   const getPostsUserImage = post.user.profileImage
   const profileImage = getPostsUserImage ? getPostsUserImage : "/assets/img/blank-profile.png"
 
@@ -41,9 +43,11 @@ export const CardPost = ({ post }: CardPostProps) => {
                 </div>
               </div>
 
-              <button>
-                <BsThreeDots className="text-slate-600 " size={20} />
-              </button>
+              {post.userId === user?.userId && (
+                <button>
+                  <BsThreeDots className="text-slate-600" size={20} />
+                </button>
+              )}
             </div>
           </div>
 

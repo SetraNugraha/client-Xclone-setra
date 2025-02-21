@@ -7,16 +7,14 @@ import { BsPeople } from "react-icons/bs"
 import { RiTwitterXLine } from "react-icons/ri"
 import { CiCircleMore } from "react-icons/ci"
 import { SlOptions } from "react-icons/sl"
-
-// Icons Clear
 import { GoHome, GoHomeFill } from "react-icons/go"
 import { IoPersonOutline, IoPersonSharp } from "react-icons/io5"
-
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { trendings } from "../dummyData/trending"
 import { formatNumberToK } from "../utils/formatNumberToK"
 import { useState } from "react"
 import { useAuth } from "../Auth/useAuth"
+import { RecommendToFollow } from "./RecommendToFollow"
 
 type SidebarProps = {
   children: React.ReactNode
@@ -135,10 +133,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
             {menuLeftBar.map((menu, index) => {
               const isActive: boolean = location.pathname === menu.path
               return (
-                <Link
-                  key={index}
-                  to={menu.path}
-                  className="relative group text-white flex items-center gap-x-5 px-3 py-2">
+                <Link key={index} to={menu.path} className="relative group text-white flex items-center gap-x-5 px-3 py-2">
                   {/* Hover Background */}
                   <span className="absolute bg-slate-100/20 rounded-3xl inset-0 opacity-0 group-hover:opacity-100"></span>
 
@@ -146,12 +141,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
                   <i className="text-[25px] z-10">{isActive ? menu.iconFilled : menu.iconOutline}</i>
 
                   {/* Title */}
-                  <span
-                    className={`text-xl z-10 tracking-wide ${
-                      isActive ? "font-bold text-white" : "font-normal text-slate-300"
-                    }`}>
-                    {menu.title}
-                  </span>
+                  <span className={`text-xl z-10 tracking-wide ${isActive ? "font-bold text-white" : "font-normal text-slate-300"}`}>{menu.title}</span>
                 </Link>
               )
             })}
@@ -160,9 +150,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
           </div>
 
           {/* Profile */}
-          <button
-            onClick={() => setButtonLogout(!buttonLogout)}
-            className="relative group mb-10 py-2 pr-5 mr-2 flex items-center justify-between">
+          <button onClick={() => setButtonLogout(!buttonLogout)} className="relative group mb-10 py-2 pr-5 mr-2 flex items-center justify-between">
             {/* Hover background */}
             <span className=" absolute w-full h-full rounded-[3rem] group-hover:bg-slate-700/40"></span>
 
@@ -170,11 +158,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
             <div className="z-10 flex items-center gap-x-3 pl-2">
               {/* Image */}
               <div>
-                <img
-                  src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"}
-                  alt="profile-image"
-                  className="size-10 rounded-full"
-                />
+                <img src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"} alt="profile-image" className="size-10 rounded-full" />
               </div>
 
               {/* Name & Username */}
@@ -195,12 +179,8 @@ export const Sidebar = ({ children }: SidebarProps) => {
         {buttonLogout && (
           <section className="absolute top-[44.2rem] left-[19rem] w-[18rem]">
             <div className="border border-slate-500/30 shadow-lg rounded-xl shadow-slate-700/50 py-3 bg-black">
-              <button className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
-                Add an existing account
-              </button>
-              <button
-                onClick={handleLogout}
-                className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
+              <button className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">Add an existing account</button>
+              <button onClick={handleLogout} className="text-white font-bold w-full hover:bg-slate-400/20 text-start px-3 py-2">
                 Logout {user?.username}
               </button>
             </div>
@@ -215,20 +195,14 @@ export const Sidebar = ({ children }: SidebarProps) => {
           {/* Input Search */}
           <div className="relative m-2">
             <FiSearch size={20} className="absolute top-1/2 -translate-y-1/2 left-8 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="py-3 px-16 bg-slate-800 text-slate-400 rounded-[3rem] w-full focus:outline-none focus:ring-2 focus:ring-sky-500"
-            />
+            <input type="text" placeholder="Search" className="py-3 px-16 bg-slate-800 text-slate-400 rounded-[3rem] w-full focus:outline-none focus:ring-2 focus:ring-sky-500" />
           </div>
 
           {/* Card Subscribe Premium */}
           <div className="text-white ring-1 ring-slate-600 mx-2 px-3 py-3 rounded-2xl mt-5 flex flex-col gap-y-3">
             <h1 className="font-bold text-xl">Subscribe to Premium</h1>
             <p className="text-sm">Subscribe to unlock new features and if eligible, receive a share of revenue.</p>
-            <button className="bg-sky-500 px-5 py-1 font-semibold tracking-wider rounded-[3rem] self-start hover:opacity-70">
-              Subscribe
-            </button>
+            <button className="bg-sky-500 px-5 py-1 font-semibold tracking-wider rounded-[3rem] self-start hover:opacity-70">Subscribe</button>
           </div>
 
           {/* News */}
@@ -263,9 +237,7 @@ export const Sidebar = ({ children }: SidebarProps) => {
             ))}
 
             {/* Button Show More */}
-            <a href="#" className="text-blue-500 mt-3 hover:underline">
-              Show more
-            </a>
+            <button className="text-blue-500 mt-3 self-start hover:underline">Show more</button>
           </div>
 
           {/* Recommend to Follow */}
@@ -274,92 +246,9 @@ export const Sidebar = ({ children }: SidebarProps) => {
 
             {/* Wrapper Account */}
             <div className="flex flex-col gap-y-3">
-              {/* Account 1 */}
-              <Link to={"#"} className="relative flex items-center justify-between group py-2">
-                {/* Hover Background */}
-                <span className="absolute group-hover:bg-slate-700/20 w-full h-full"></span>
-                <div className="flex items-center gap-x-2 px-5 z-10">
-                  {/* Profile Image */}
-                  <Link to={"#"}>
-                    <img
-                      src="/assets/img/snorlax.png"
-                      alt="profile-image"
-                      className="size-9 rounded-full hover:opacity-80"
-                    />
-                  </Link>
-
-                  {/* Name & Username */}
-                  <Link to={"#"} className="flex flex-col items-start">
-                    <p className="font-bold text-white hover:underline">Snorlax</p>
-                    <p className="text-slate-500 text-sm">@snorlaxxx22</p>
-                  </Link>
-                </div>
-
-                {/* Button Follow */}
-                <div className="pr-5 z-10">
-                  <button className="px-2 py-1 text-sm font-bold rounded-[2rem] bg-white hover:opacity-80">
-                    Follow
-                  </button>
-                </div>
-              </Link>
-
-              {/* Account 2 */}
-              <Link to={"#"} className="relative flex items-center justify-between group py-2">
-                {/* Hover Background */}
-                <span className="absolute group-hover:bg-slate-700/20 w-full h-full"></span>
-                <div className="flex items-center gap-x-2 px-5 z-10">
-                  {/* Profile Image */}
-                  <Link to={"#"}>
-                    <img
-                      src="/assets/img/download.jpeg"
-                      alt="profile-image"
-                      className="size-9 rounded-full hover:opacity-80"
-                    />
-                  </Link>
-
-                  {/* Name & Username */}
-                  <Link to={"#"} className="flex flex-col items-start">
-                    <p className="font-bold text-white hover:underline">Budiono Siregar</p>
-                    <p className="text-slate-500 text-sm">@kapalbudiono66212</p>
-                  </Link>
-                </div>
-
-                {/* Button Follow */}
-                <div className="pr-5 z-10">
-                  <button className="px-2 py-1 text-sm font-bold rounded-[2rem] bg-white hover:opacity-80">
-                    Follow
-                  </button>
-                </div>
-              </Link>
-
-              {/* Account 3 */}
-              <Link to={"#"} className="relative flex items-center justify-between group py-2">
-                {/* Hover Background */}
-                <span className="absolute group-hover:bg-slate-700/20 w-full h-full"></span>
-                <div className="flex items-center gap-x-2 px-5 z-10">
-                  {/* Profile Image */}
-                  <Link to={"#"}>
-                    <img
-                      src="/assets/img/example-post-img.jpg"
-                      alt="profile-image"
-                      className="size-9 rounded-full hover:opacity-80"
-                    />
-                  </Link>
-
-                  {/* Name & Username */}
-                  <Link to={"#"} className="flex flex-col items-start">
-                    <p className="font-bold text-white hover:underline">Rusli Hadi</p>
-                    <p className="text-slate-500 text-sm">@hadirusli2212</p>
-                  </Link>
-                </div>
-
-                {/* Button Follow */}
-                <div className="pr-5 z-10">
-                  <button className="px-2 py-1 text-sm font-bold rounded-[2rem] bg-white hover:opacity-80">
-                    Follow
-                  </button>
-                </div>
-              </Link>
+              <RecommendToFollow name="Snorlax" username="snorlax9123" profileImage="/assets/img/snorlax.png" />
+              <RecommendToFollow name="Charmander" username="charmander3324" profileImage="/assets/img/blank-profile.png" />
+              <RecommendToFollow name="Bulbasaur" username="bulbasaur2212" profileImage="/assets/img/download.jpeg" />
             </div>
 
             {/* Button Show More */}
