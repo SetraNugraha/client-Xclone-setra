@@ -4,7 +4,7 @@ interface UserPostsDTO {
   profileImage: string | null
 }
 
-interface Comments {
+export interface Comments {
   id: string
   userId: string
   postId: string

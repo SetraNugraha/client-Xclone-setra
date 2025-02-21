@@ -1,28 +1,26 @@
 import { Link, useParams, useNavigate } from "react-router-dom"
 import { Sidebar } from "../components/Sidebar"
-import { formatNumberToK } from "../utils/formatNumberToK"
 import { useCallback, useState } from "react"
 import { FooterCardPost } from "../components/FooterCardPost"
 import { usePosts } from "../hooks/usePosts"
 import { formatDate } from "../utils/formatDate"
 import { TiArrowLeft } from "react-icons/ti"
 import { BsThreeDots } from "react-icons/bs"
-import { HiOutlineChatBubbleOvalLeft } from "react-icons/hi2"
-import { BiGitCompare } from "react-icons/bi"
-import { IoMdHeartEmpty } from "react-icons/io"
-import { PiUploadSimpleBold } from "react-icons/pi"
-import { FiBookmark } from "react-icons/fi"
 import { BsEmojiSmile } from "react-icons/bs"
 import { BiMap } from "react-icons/bi"
 import { LuImage } from "react-icons/lu"
 import { MdOutlineGifBox } from "react-icons/md"
 import { HandleError } from "../components/HandleError"
+import { useAuth } from "../Auth/useAuth"
+import { CardComment } from "../components/CardComment"
 
 export default function DetailPost() {
   const navigate = useNavigate()
-  const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
+  const { user } = useAuth()
   const { postId } = useParams()
-  const { data: post, handleToggleLike, createNewComment, isLoading, isError, error } = usePosts(postId)
+  const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
+  const { data: post, handleToggleLike, createNewComment, isLoading, isError, error, deletePost } = usePosts(postId)
+  const [optionButton, setOptionButton] = useState<boolean>(false)
 
   const [isCommentFocus, setIsCommentFocus] = useState<boolean>(false)
   const [commentBody, setCommentBody] = useState<string>("")
@@ -43,6 +41,19 @@ export default function DetailPost() {
     },
     [createNewComment, commentBody],
   )
+
+  const handleDeletePost = () => {
+    const isConfirm: boolean = confirm("Are you sure want to delete post ?")
+
+    if (isConfirm) {
+      deletePost.mutate(post![0].id)
+      setOptionButton(false)
+      navigate(-1)
+    } else {
+      alert("Delete post cancceled")
+      setOptionButton(false)
+    }
+  }
 
   if (isError) {
     return <HandleError isError={isError} message={error?.message} component={"Detail Post Error: "} />
@@ -85,10 +96,23 @@ export default function DetailPost() {
                 <p className="text-slate-500 text-sm -mt-1">@{post[0].user.username}</p>
               </div>
             </div>
-            {/* Button option user */}
-            <button>
-              <BsThreeDots size={20} className="text-slate-500 hover:text-blue-500" />
-            </button>
+
+            {/* Option Button  */}
+            {post[0].userId === user?.userId && (
+              <div className="relative">
+                <button onClick={() => setOptionButton(!optionButton)}>
+                  <BsThreeDots className="absolute top-0 right-0 z-10 text-white size-5 hover:opacity-60" />
+                </button>
+
+                {optionButton && (
+                  <span className="z-20">
+                    <button onClick={handleDeletePost} className="absolute right-0 -top-8 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
+                      Delete
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Body Post */}
@@ -190,77 +214,7 @@ export default function DetailPost() {
 
           {/* Comments Section */}
           {post[0].comment?.map((comment, index) => {
-            const getProfileImage = comment.user.profileImage
-            const profileImage = getProfileImage ? getProfileImage : "/assets/img/blank-profile.png"
-            return (
-              <div className="relative flex items-start px-5 py-4" key={index}>
-                {/* Border Bottom */}
-                <span className="absolute w-full border border-slate-800 bottom-0 -mx-5"></span>
-
-                {/* Profile Image */}
-                <Link className="w-[10%]" to={`/profile/${comment.userId}`}>
-                  <img src={profileImage} alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
-                </Link>
-
-                {/* username & body comment */}
-                <div className="w-full">
-                  {/* Username */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-x-2">
-                      <Link to={`/profile/${comment.userId}`} className="text-white font-semibold hover:underline">
-                        {comment.user.name}
-                      </Link>
-                      <p className="text-sm text-slate-500">@{comment.user.username}</p>
-                    </div>
-
-                    <button>
-                      <BsThreeDots className="size-6 text-slate-500 hover:text-blue-500" />
-                    </button>
-                  </div>
-
-                  {/* Body comment */}
-                  <div>
-                    <p className="text-white text-justify">{comment.body}</p>
-                  </div>
-
-                  {/* Footer Comment */}
-                  <div className="-mx-2 mt-5">
-                    {/* <FooterCardPost post={post[0]} /> */}
-                    <div className="relative text-slate-500 capitalize flex items-center justify-between mx-2 pr-40">
-                      {/* Comments */}
-                      <button className="flex items-center gap-x-1  hover:text-blue-500 group">
-                        <HiOutlineChatBubbleOvalLeft size={20} />
-                        <p>{formatNumberToK(0)}</p>
-                      </button>
-
-                      {/* Respost */}
-                      <button className="flex items-center gap-x-1  hover:text-green-500">
-                        <BiGitCompare size={20} />
-                        <p>{formatNumberToK(0)}</p>
-                      </button>
-
-                      {/* Like */}
-                      <button className="flex items-center gap-x-1  hover:text-red-500">
-                        <IoMdHeartEmpty size={20} />
-                        <p>{formatNumberToK(0)}</p>
-                      </button>
-
-                      {/* Views */}
-                      <button className="flex items-center gap-x-1  hover:text-blue-500">
-                        <FiBookmark size={20} />
-                        <p>{formatNumberToK(0)}</p>
-                      </button>
-                      <div className="absolute right-0 flex items-center gap-x-3 text-slate-500">
-                        {/* Upload */}
-                        <button>
-                          <PiUploadSimpleBold size={20} className="hover:text-blue-500" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
+            return <CardComment key={index} comment={comment} />
           })}
         </section>
       )}

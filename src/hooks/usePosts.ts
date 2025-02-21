@@ -77,6 +77,7 @@ export const usePosts = (postId?: string, userId?: string) => {
     [toggleLike],
   )
 
+  // CREATE COMMENT
   const createNewComment = useMutation({
     mutationFn: async (body: string) => {
       const response = await axiosInstance.post(
@@ -100,5 +101,43 @@ export const usePosts = (postId?: string, userId?: string) => {
     },
   })
 
-  return { data, isLoading, isError, error, createPost, toggleLike, handleToggleLike, createNewComment }
+  // DELETE POST
+  const deletePost = useMutation({
+    mutationFn: async (postId: string) => {
+      await axiosInstance.delete(`${baseURL}/posts/${postId}/delete`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts", postId] })
+      alert("Delete Post success")
+    },
+    onError: (error) => {
+      console.error("Error delete post: ", error)
+      alert("Error while deleting post, Try again later.")
+    },
+  })
+
+  // DELETE Comment
+  const deleteComment = useMutation({
+    mutationFn: async (commentId: string) => {
+      await axiosInstance.delete(`${baseURL}/posts/comment/${commentId}/delete`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] })
+      alert("Delete Comment success")
+    },
+    onError: (error) => {
+      console.error("Error delete comment: ", error)
+      alert("Error while deleting comment, Try again later.")
+    },
+  })
+
+  return { data, isLoading, isError, error, createPost, toggleLike, handleToggleLike, createNewComment, deletePost, deleteComment }
 }

@@ -5,6 +5,7 @@ import { BsThreeDots } from "react-icons/bs"
 import { formatDate } from "../utils/formatDate"
 import { usePosts } from "../hooks/usePosts"
 import { useAuth } from "../Auth/useAuth"
+import { useState } from "react"
 
 interface CardPostProps {
   post: Posts
@@ -13,13 +14,26 @@ interface CardPostProps {
 export const CardPost = ({ post }: CardPostProps) => {
   const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
   const { user } = useAuth()
-  const { handleToggleLike } = usePosts()
+  const { handleToggleLike, deletePost } = usePosts()
+  const [optionButton, setOptionButton] = useState<boolean>(false)
 
   const getPostsUserImage = post.user.profileImage
   const profileImage = getPostsUserImage ? getPostsUserImage : "/assets/img/blank-profile.png"
 
+  const handleDeletePost = () => {
+    const isConfirm: boolean = confirm("Are you sure want to delete post ?")
+
+    if (isConfirm) {
+      deletePost.mutate(post.id)
+      setOptionButton(false)
+    } else {
+      alert("Delete post cancceled")
+      setOptionButton(false)
+    }
+  }
+
   return (
-    <section className="border-b border-slate-800 hover:bg-slate-700/30 transition-all duration-100 z-0">
+    <section className="border-b border-slate-800 hover:bg-slate-700/30 transition-all duration-100 -z-10">
       <div className="p-5 flex items-start gap-x-5 z-10">
         {/* Profile Image */}
         <Link to={`/profile/${post.userId}`} className="hover:opacity-70 ">
@@ -32,6 +46,7 @@ export const CardPost = ({ post }: CardPostProps) => {
           <div className="w-full ">
             {/* Name , Username, Date & setting button */}
             <div className="flex items-center justify-between">
+              {/* Name */}
               <div className="flex gap-x-3 items-center">
                 <Link to={`/profile/${post.userId}`} className="text-white font-bold hover:underline">
                   {post.user.name}
@@ -43,10 +58,21 @@ export const CardPost = ({ post }: CardPostProps) => {
                 </div>
               </div>
 
+              {/* Option Button  */}
               {post.userId === user?.userId && (
-                <button>
-                  <BsThreeDots className="text-slate-600" size={20} />
-                </button>
+                <div className="relative">
+                  <button onClick={() => setOptionButton(!optionButton)}>
+                    <BsThreeDots className="absolute top-0 right-0 text-white size-5 hover:opacity-60" />
+                  </button>
+
+                  {optionButton && (
+                    <span className="z-20">
+                      <button onClick={handleDeletePost} className="absolute right-0 top-6 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
+                        Delete
+                      </button>
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -54,16 +80,12 @@ export const CardPost = ({ post }: CardPostProps) => {
           {/* Body Post */}
           <div className="flex flex-col gap-y-3">
             {/* BODY POST */}
-            <Link to={`/detail-post/${post.id}`} className="flex flex-col gap-y-5 z-50">
+            <Link to={`/detail-post/${post.id}`} className="flex flex-col gap-y-5">
               <p className="text-white text-justify">{post.body}</p>
 
               {post.postImage && (
                 <div className="max-w-full z-10">
-                  <img
-                    src={`${POSTS_IMAGE_URL + post.postImage}`}
-                    alt="post-image"
-                    className="rounded-2xl max-h-[35rem] min-w-[70%]"
-                  />
+                  <img src={`${POSTS_IMAGE_URL + post.postImage}`} alt="post-image" className="rounded-2xl max-h-[35rem] min-w-[70%]" />
                 </div>
               )}
             </Link>
