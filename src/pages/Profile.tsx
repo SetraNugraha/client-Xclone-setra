@@ -8,6 +8,8 @@ import { usePosts } from "../hooks/usePosts"
 import { useUsers } from "../hooks/useUsers"
 import { useAuth } from "../Auth/useAuth"
 import { HandleError } from "../components/HandleError"
+import { IoCloseSharp } from "react-icons/io5"
+import { BsTrash3Fill } from "react-icons/bs"
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -15,6 +17,7 @@ export default function Profile() {
   const { userId } = useParams()
   const { data: user } = useUsers(userId)
   const { data: posts, isLoading, isError, error } = usePosts(undefined, userId)
+  const [modalProfileImage, setModalProfileImage] = useState<boolean>(false)
 
   const [activeMenu, setActiveMenu] = useState<string>("Posts")
   const menuProfile = [
@@ -76,7 +79,10 @@ export default function Profile() {
         <div className="mx-5">
           {/* Profile Image & Button Edit Profile*/}
           <div className="relative w-full">
-            <img src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"} alt="profile-image" className="size-28 rounded-full ring-[3px] ring-black absolute -top-16" />
+            {/* PROFILE IMAGE */}
+            <img onClick={() => setModalProfileImage(true)} src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"} alt="profile-image" className="size-28 rounded-full ring-[3px] ring-black absolute -top-16 hover:brightness-75 cursor-pointer" />
+
+            {/* EDIT PROFILE BUTTON */}
             {AuthUser?.userId === userId && <button className="px-3 py-1 border border-slate-400 font-bold text-white text-sm rounded-[3rem] absolute right-0 top-2">Edit Profile</button>}
           </div>
 
@@ -126,6 +132,41 @@ export default function Profile() {
           })
         )}
       </section>
+
+      {/* MODAL UPDATE PROFILE IMAGE */}
+      {modalProfileImage && (
+        <section className="fixed inset-0 bg-slate-200/20 z-50">
+          <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 bg-black w-[22rem] rounded-2xl px-5 pb-3">
+            {/* Header  */}
+            <div className="py-2 flex items-center justify-between">
+              <button onClick={() => setModalProfileImage(false)} className="p-2 rounded-full hover:bg-slate-400/20 ">
+                <IoCloseSharp className="size-7 text-white " />
+              </button>
+              <button className="text-white bg-red-500 p-2 rounded-lg font-semibold hover:bg-red-700">
+                <BsTrash3Fill size={18} />
+              </button>
+            </div>
+
+            {/* PROFILE IMAGE */}
+            <div className="my-2 flex flex-col items-center gap-y-3">
+              <div className="relative">
+                <label htmlFor="update-profile-image" className="cursor-pointer hover:brightness-75">
+                  <img src="/assets/img/snorlax.png" alt="profile-image" className="size-64 rounded-full" />
+                </label>
+                <input hidden type="file" name="profileImage" id="update-profile-image" />
+              </div>
+              <p className="text-white font-semibold max-w-56 flex flex-col items-center">
+                New File : <span className="font-normal">Snorlax.png</span>
+              </p>
+            </div>
+
+            {/* BUTTON SUBMIT */}
+            <div className="place-self-center my-5">
+              <button className="text-white bg-blue-500 px-3 py-2 font-semibold rounded-lg hover:bg-blue-700">Update Profile</button>
+            </div>
+          </div>
+        </section>
+      )}
     </Sidebar>
   )
 }
