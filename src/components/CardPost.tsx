@@ -6,6 +6,7 @@ import { formatDate } from "../utils/formatDate"
 import { usePosts } from "../hooks/usePosts"
 import { useAuth } from "../Auth/useAuth"
 import { useState } from "react"
+import { useUsers } from "../hooks/useUsers"
 
 interface CardPostProps {
   post: Posts
@@ -14,11 +15,15 @@ interface CardPostProps {
 export const CardPost = ({ post }: CardPostProps) => {
   const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
   const { user } = useAuth()
+  const { data: getUser } = useUsers(post.userId)
   const { handleToggleLike, deletePost } = usePosts()
   const [optionButton, setOptionButton] = useState<boolean>(false)
 
-  const getPostsUserImage = post.user.profileImage
-  const profileImage = getPostsUserImage ? getPostsUserImage : "/assets/img/blank-profile.png"
+  // PROFILE IMAGE
+  const PROFILE_IMAGE_URL = import.meta.env.VITE_USER_PROFILE_URL
+  const profileImage = getUser?.profileImage
+    ? `${PROFILE_IMAGE_URL + getUser.profileImage}`
+    : "/assets/img/blank-profile.png"
 
   const handleDeletePost = () => {
     const isConfirm: boolean = confirm("Are you sure want to delete post ?")
@@ -67,7 +72,9 @@ export const CardPost = ({ post }: CardPostProps) => {
 
                   {optionButton && (
                     <span className="z-20">
-                      <button onClick={handleDeletePost} className="absolute right-0 top-6 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
+                      <button
+                        onClick={handleDeletePost}
+                        className="absolute right-0 top-6 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
                         Delete
                       </button>
                     </span>
@@ -85,7 +92,11 @@ export const CardPost = ({ post }: CardPostProps) => {
 
               {post.postImage && (
                 <div className="max-w-full z-10">
-                  <img src={`${POSTS_IMAGE_URL + post.postImage}`} alt="post-image" className="rounded-2xl max-h-[35rem] min-w-[70%]" />
+                  <img
+                    src={`${POSTS_IMAGE_URL + post.postImage}`}
+                    alt="post-image"
+                    className="rounded-2xl max-h-[35rem] min-w-[70%]"
+                  />
                 </div>
               )}
             </Link>

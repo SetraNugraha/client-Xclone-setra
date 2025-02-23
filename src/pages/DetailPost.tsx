@@ -13,17 +13,26 @@ import { MdOutlineGifBox } from "react-icons/md"
 import { HandleError } from "../components/HandleError"
 import { useAuth } from "../Auth/useAuth"
 import { CardComment } from "../components/CardComment"
+import { useUsers } from "../hooks/useUsers"
 
 export default function DetailPost() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { postId } = useParams()
-  const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
   const { data: post, handleToggleLike, createNewComment, isLoading, isError, error, deletePost } = usePosts(postId)
+  const { data: getUser } = useUsers(post?.[0]?.userId)
+  const { data: AuthUser } = useUsers(user?.userId)
   const [optionButton, setOptionButton] = useState<boolean>(false)
-
   const [isCommentFocus, setIsCommentFocus] = useState<boolean>(false)
   const [commentBody, setCommentBody] = useState<string>("")
+  const POSTS_IMAGE_URL = import.meta.env.VITE_POSTS_IMAGE_URL
+  const PROFILE_IMAGE_URL = import.meta.env.VITE_USER_PROFILE_URL
+
+  // PROFILE IMAGE
+  const profileImage = getUser?.profileImage
+    ? `${PROFILE_IMAGE_URL + getUser.profileImage}`
+    : "/assets/img/blank-profile.png"
+
   const handleInputComment = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = "auto"
     e.target.style.height = `${e.target.scrollHeight}px`
@@ -86,7 +95,7 @@ export default function DetailPost() {
             <div className="flex items-center gap-x-3">
               {/* Profile Image */}
               <Link to={`/profile/${post[0].userId}`}>
-                <img src={post[0].user.profileImage ?? "/assets/img/blank-profile.png"} alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
+                <img src={profileImage} alt="profile-image" className="size-10 rounded-full hover:opacity-70" />
               </Link>
               {/* Name & Username */}
               <div className="flex flex-col">
@@ -106,7 +115,9 @@ export default function DetailPost() {
 
                 {optionButton && (
                   <span className="z-20">
-                    <button onClick={handleDeletePost} className="absolute right-0 -top-8 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
+                    <button
+                      onClick={handleDeletePost}
+                      className="absolute right-0 -top-8 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
                       Delete
                     </button>
                   </span>
@@ -122,7 +133,11 @@ export default function DetailPost() {
             {/* POST IMAGE */}
             {post[0].postImage && (
               <div className="max-w-full my-5">
-                <img src={`${POSTS_IMAGE_URL + post[0].postImage}`} alt="post-image" className="rounded-2xl max-h-[35rem] min-w-[70%]" />
+                <img
+                  src={`${POSTS_IMAGE_URL + post[0].postImage}`}
+                  alt="post-image"
+                  className="rounded-2xl max-h-[35rem] min-w-[70%]"
+                />
               </div>
             )}
 
@@ -147,12 +162,27 @@ export default function DetailPost() {
             <div className="mx-5 flex items-start">
               {/* Profile Image */}
               <Link to={`/profile/${post[0].userId}`} className="w-[12%] hover:opacity-70">
-                <img src={post[0].user.profileImage ?? "/assets/img/blank-profile.png"} alt="profile-image" className="size-10 rounded-full" />
+                <img
+                  src={
+                    AuthUser?.profileImage
+                      ? `${PROFILE_IMAGE_URL + AuthUser.profileImage}`
+                      : "/assets/img/blank-profile.png"
+                  }
+                  alt="profile-image"
+                  className="size-10 rounded-full"
+                />
               </Link>
 
               {/* Input Comment */}
               <div className="flex flex-col w-full -ml-2">
-                <textarea name="body" placeholder="Post your reply" className="text-white bg-black text-lg w-full mr-5 focus:outline-none resize-none placeholder:text-xl placeholder:text-slate-500 scrollbar-hide" maxLength={450} value={commentBody} onChange={handleInputComment} onFocus={() => setIsCommentFocus(true)}></textarea>
+                <textarea
+                  name="body"
+                  placeholder="Post your reply"
+                  className="text-white bg-black text-lg w-full mr-5 focus:outline-none resize-none placeholder:text-xl placeholder:text-slate-500 scrollbar-hide"
+                  maxLength={450}
+                  value={commentBody}
+                  onChange={handleInputComment}
+                  onFocus={() => setIsCommentFocus(true)}></textarea>
                 {/* Addons & button reply */}
                 <div className="mt-3">
                   {isCommentFocus && (
@@ -192,7 +222,9 @@ export default function DetailPost() {
                       </div>
 
                       <form onSubmit={handleCreateNewComment}>
-                        <button disabled={!commentBody} className="px-3 py-1 text-lg bg-white hover:opacity-80  rounded-[3rem] font-semibold disabled:bg-slate-500 disabled:text-black">
+                        <button
+                          disabled={!commentBody}
+                          className="px-3 py-1 text-lg bg-white hover:opacity-80  rounded-[3rem] font-semibold disabled:bg-slate-500 disabled:text-black">
                           Reply
                         </button>
                       </form>
@@ -204,7 +236,9 @@ export default function DetailPost() {
               {/* Initial Reply Button */}
               {!isCommentFocus && (
                 <div>
-                  <button disabled={!commentBody} className="px-3 py-1 text-lg rounded-[3rem] font-semibold disabled:bg-slate-500 disabled:text-black">
+                  <button
+                    disabled={!commentBody}
+                    className="px-3 py-1 text-lg rounded-[3rem] font-semibold disabled:bg-slate-500 disabled:text-black">
                     Reply
                   </button>
                 </div>

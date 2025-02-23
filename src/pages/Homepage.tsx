@@ -11,6 +11,7 @@ import { RiCalendarScheduleLine } from "react-icons/ri"
 import { BiMap } from "react-icons/bi"
 import { LuImage } from "react-icons/lu"
 import { GiEarthAmerica } from "react-icons/gi"
+import { useUsers } from "../hooks/useUsers"
 
 interface PostCategory {
   id: string
@@ -24,14 +25,20 @@ const postCategories: PostCategory[] = [
 
 export default function Homepage() {
   const { user } = useAuth()
+  const { data: getUser } = useUsers(user?.userId)
   const { data: posts, isLoading, isError, error, createPost } = usePosts()
   const [activeCategory, setActiveCategory] = useState<string>("forYou")
   const [isFocusBodyPost, setIsFocusBodyPost] = useState<boolean>(false)
-
   const [formPost, setFormPost] = useState<{ body: string; postImage: File | null }>({
     body: "",
     postImage: null,
   })
+
+  // PROFILE IMAGE
+  const PROFILE_IMAGE_URL = import.meta.env.VITE_USER_PROFILE_URL
+  const profileImage = getUser?.profileImage
+    ? `${PROFILE_IMAGE_URL + getUser.profileImage}`
+    : "/assets/img/blank-profile.png"
 
   const handleInputBodyPost = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.preventDefault()
@@ -82,9 +89,14 @@ export default function Homepage() {
         {/* Button For you / Following */}
         <div className="text-white border-b border-slate-800 flex items-center justify-around px-5 py-3 sticky top-0 z-50 bg-black">
           {postCategories.map((category, index) => (
-            <button key={index} onClick={() => setActiveCategory(category.id)} className={`relative ${activeCategory === category.id ? "font-bold" : "text-slate-500"} flex flex-col`}>
+            <button
+              key={index}
+              onClick={() => setActiveCategory(category.id)}
+              className={`relative ${activeCategory === category.id ? "font-bold" : "text-slate-500"} flex flex-col`}>
               {category.label}
-              {activeCategory === category.id && <span className="absolute -bottom-3 border-b-4 border-blue-500 rounded-xl w-full"></span>}
+              {activeCategory === category.id && (
+                <span className="absolute -bottom-3 border-b-4 border-blue-500 rounded-xl w-full"></span>
+              )}
             </button>
           ))}
         </div>
@@ -94,14 +106,25 @@ export default function Homepage() {
           {/* Profile Image & Input Post*/}
           <div className="flex items-start gap-x-3 m-5">
             <div className="">
-              <img src={user?.profileImage ? user.profileImage : "/assets/img/blank-profile.png"} alt="profile-image" className="rounded-full size-12 mx-1" />
+              <img src={profileImage} alt="profile-image" className="rounded-full size-12 mx-1" />
             </div>
 
             {/* Input Text Post */}
             <div className="w-full flex flex-col">
               {/* Input Text Post */}
               <div className="relative">
-                <textarea name="body" id="post" placeholder="What is happening?!" maxLength={1000} className={`bg-black text-white w-full p-2 placeholder:text-xl resize-none focus:outline-none scrollbar-hide ${isFocusBodyPost && "pb-12 border-b border-slate-600"}`} value={formPost.body} rows={1} onFocus={() => setIsFocusBodyPost(true)} onChange={handleInputBodyPost}></textarea>
+                <textarea
+                  name="body"
+                  id="post"
+                  placeholder="What is happening?!"
+                  maxLength={1000}
+                  className={`bg-black text-white w-full p-2 placeholder:text-xl resize-none focus:outline-none scrollbar-hide ${
+                    isFocusBodyPost && "pb-12 border-b border-slate-600"
+                  }`}
+                  value={formPost.body}
+                  rows={1}
+                  onFocus={() => setIsFocusBodyPost(true)}
+                  onChange={handleInputBodyPost}></textarea>
 
                 {isFocusBodyPost && (
                   <button className="absolute bottom-2 text-blue-500 flex items-center gap-x-2 ml-2 hover:opacity-70">
@@ -117,7 +140,9 @@ export default function Homepage() {
               {formPost.postImage && (
                 <span className="text-slate-500 ml-2 text-sm flex items-center gap-x-2">
                   {formPost.postImage?.name}
-                  <button className="text-sm font-bold text-red-500/70 mt-1" onClick={() => setFormPost((prevState) => ({ ...prevState, postImage: null }))}>
+                  <button
+                    className="text-sm font-bold text-red-500/70 mt-1"
+                    onClick={() => setFormPost((prevState) => ({ ...prevState, postImage: null }))}>
                     X
                   </button>
                 </span>
@@ -178,7 +203,14 @@ export default function Homepage() {
 
                 {/* Button Create Post */}
                 <form onSubmit={handleCreateNewPost}>
-                  <button disabled={formPost.body === "" || formPost.body === null || formPost.body === undefined || createPost.isPending} className="py-2 px-4 rounded-[3rem] font-bold tracking-wider bg-blue-500 text-white disabled:bg-slate-400 disabled:text-black hover:opacity-70">
+                  <button
+                    disabled={
+                      formPost.body === "" ||
+                      formPost.body === null ||
+                      formPost.body === undefined ||
+                      createPost.isPending
+                    }
+                    className="py-2 px-4 rounded-[3rem] font-bold tracking-wider bg-blue-500 text-white disabled:bg-slate-400 disabled:text-black hover:opacity-70">
                     {createPost.isPending ? "Loading ..." : "Post"}
                   </button>
                 </form>
@@ -191,7 +223,9 @@ export default function Homepage() {
         {isLoading ? (
           <div className="text-white text-lg font-semibold text-center mt-10">Loading ....</div>
         ) : isError ? (
-          <div className="text-white text-lg font-semibold text-center mt-10">Unexpected error occured, Try to refresh page</div>
+          <div className="text-white text-lg font-semibold text-center mt-10">
+            Unexpected error occured, Try to refresh page
+          </div>
         ) : !posts || posts.length === 0 ? (
           <div className="text-white text-center font-semibold mt-2">No Posts</div>
         ) : (

@@ -11,6 +11,7 @@ import { useAuth } from "../Auth/useAuth"
 import { Comments } from "../types/posts.type"
 import { usePosts } from "../hooks/usePosts"
 import { useState } from "react"
+import { useUsers } from "../hooks/useUsers"
 
 interface CardCommentProps {
   comment: Comments
@@ -18,10 +19,15 @@ interface CardCommentProps {
 
 export const CardComment = ({ comment }: CardCommentProps) => {
   const { user } = useAuth()
+  const { data: getUser } = useUsers(comment.userId)
   const { deleteComment } = usePosts()
-  const getProfileImage = comment.user.profileImage
-  const profileImage = getProfileImage ? getProfileImage : "/assets/img/blank-profile.png"
   const [optionButton, setOptionButton] = useState<boolean>(false)
+
+  // PROFILE IMAGE
+  const PROFILE_IMAGE_URL = import.meta.env.VITE_USER_PROFILE_URL
+  const profileImage = getUser?.profileImage
+    ? `${PROFILE_IMAGE_URL + getUser.profileImage}`
+    : "/assets/img/blank-profile.png"
 
   const handleDeleteComment = () => {
     const isConfirm = confirm("Are you sure want to delete this comment ?")
@@ -66,7 +72,9 @@ export const CardComment = ({ comment }: CardCommentProps) => {
 
               {optionButton && (
                 <span className="z-20">
-                  <button onClick={handleDeleteComment} className="absolute right-0 top-6 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
+                  <button
+                    onClick={handleDeleteComment}
+                    className="absolute right-0 top-6 z-50 text-white text-sm font-semibold px-3 py-1 ring-1 ring-slate-700/70 rounded-md shadow-lg shadow-slate-500/30 hover:bg-red-700/50">
                     Delete
                   </button>
                 </span>
