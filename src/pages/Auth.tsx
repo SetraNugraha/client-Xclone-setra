@@ -1,87 +1,37 @@
-import ModalRegister from "../components/ModalRegister"
-import ModalLogin from "../components/ModalLogin"
-import { OtherLogin } from "../components/OtherLogin"
-import { useState } from "react"
+import ModalRegister from "../components/ModalRegister";
+import ModalLogin from "../components/ModalLogin";
+import { OtherLogin } from "../components/OtherLogin";
+import { useState } from "react";
 
 type Footer = {
-  path: string
-  name: string
-}
+  path: string;
+  name: string;
+};
 
 export default function Auth() {
-  const [modalLogin, setModalLogin] = useState<boolean>(false)
-  const [modalRegister, setModalRegister] = useState<boolean>(false)
+  const [modalLogin, setModalLogin] = useState<boolean>(false);
+  const [modalRegister, setModalRegister] = useState<boolean>(false);
 
   const footerMenu: Footer[] = [
-    {
-      path: "/about",
-      name: "About",
-    },
-    {
-      path: "/download",
-      name: "Download the X app",
-    },
-    {
-      path: "/help",
-      name: "Help Center",
-    },
-    {
-      path: "/terms",
-      name: "Terms of Service",
-    },
-    {
-      path: "/privacy",
-      name: "Privacy Policy",
-    },
-    {
-      path: "/cookie",
-      name: "Cookie Policy",
-    },
-    {
-      path: "/accessibility",
-      name: "Acessibility",
-    },
-    {
-      path: "/ads",
-      name: "Ads Info",
-    },
-    {
-      path: "/careers",
-      name: "Careers",
-    },
-    {
-      path: "/brand",
-      name: "Brand Resources",
-    },
-    {
-      path: "/adversiting",
-      name: "Adversiting",
-    },
-    {
-      path: "/marketing",
-      name: "Marketing",
-    },
-    {
-      path: "/bussiness",
-      name: "X for Bussiness",
-    },
-    {
-      path: "/developers",
-      name: "Developers",
-    },
-    {
-      path: "/directory",
-      name: "Directory",
-    },
-    {
-      path: "/settings",
-      name: "Settings",
-    },
-    {
-      path: "/company",
-      name: "2024 X Corp",
-    },
-  ]
+    { path: "#", name: "About" },
+    { path: "#", name: "Download the X app" },
+    { path: "#", name: "Help Center" },
+    { path: "#", name: "Terms of Service" },
+    { path: "#", name: "Privacy Policy" },
+    { path: "#", name: "Cookie Policy" },
+    { path: "#", name: "Acessibility" },
+    { path: "#", name: "Ads Info" },
+    { path: "#", name: "Careers" },
+    { path: "#", name: "Brand Resources" },
+    { path: "#", name: "Adversiting" },
+    { path: "#", name: "Marketing" },
+    { path: "#", name: "X for Bussiness" },
+    { path: "#", name: "Developers" },
+    { path: "#", name: "Directory" },
+    { path: "#", name: "Settings" },
+    { path: "#", name: "2024 X Corp" },
+  ];
+
   return (
     <section className="bg-black h-screen relative">
       <div className="h-full flex items-center justify-center">
@@ -89,7 +39,11 @@ export default function Auth() {
         <div className="h-full w-full">
           {/* Logo */}
           <div className="h-full w-full flex items-center justify-center">
-            <img src="assets/img/x-logo.png" alt="logo" className="size-80 filter invert" />
+            <img
+              src="assets/img/x-logo.png"
+              alt="logo"
+              className="size-80 filter invert"
+            />
           </div>
         </div>
 
@@ -104,7 +58,9 @@ export default function Auth() {
 
             {/* Button Login */}
             <div className="relative flex flex-col gap-y-3 w-[350px]">
-              <p className="text-[2rem] font-bold text-white mt-10 mb-3">Join today.</p>
+              <p className="text-[2rem] font-bold text-white mt-10 mb-3">
+                Join today.
+              </p>
 
               {/* Other Login */}
               <OtherLogin />
@@ -112,7 +68,8 @@ export default function Auth() {
               {/* Create Account */}
               <button
                 onClick={() => setModalRegister(true)}
-                className="flex items-center justify-center gap-x-3 py-2 font-bold text-white bg-sky-500 rounded-3xl text-lg hover:opacity-90">
+                className="flex items-center justify-center gap-x-3 py-2 font-bold text-white bg-sky-500 rounded-3xl text-lg hover:opacity-90"
+              >
                 Create account
               </button>
 
@@ -136,10 +93,13 @@ export default function Auth() {
 
               {/* Sign in */}
               <div className="flex flex-col gap-y-2 absolute -bottom-32 w-full">
-                <p className="text-white font-semibold">Already have an account?</p>
+                <p className="text-white font-semibold">
+                  Already have an account?
+                </p>
                 <button
                   onClick={() => setModalLogin(true)}
-                  className="py-2 font-bold text-center bg-black rounded-3xl text-sky-500 ring-1 hover:opacity-90">
+                  className="py-2 font-bold text-center bg-black rounded-3xl text-sky-500 ring-1 hover:opacity-90"
+                >
                   Sign in
                 </button>
               </div>
@@ -150,7 +110,11 @@ export default function Auth() {
         {/* Footer */}
         <div className="absolute bottom-3 flex gap-x-5">
           {footerMenu.map((footer, index) => (
-            <a key={index} href={footer.path} className="text-gray-500 hover:text-white hover:underline">
+            <a
+              key={index}
+              href={footer.path}
+              className="text-gray-500 hover:text-white hover:underline"
+            >
               {footer.name}
             </a>
           ))}
@@ -161,7 +125,9 @@ export default function Auth() {
       {modalLogin && <ModalLogin onClose={() => setModalLogin(false)} />}
 
       {/* Modal Register */}
-      {modalRegister && <ModalRegister onClose={() => setModalRegister(false)} />}
+      {modalRegister && (
+        <ModalRegister onClose={() => setModalRegister(false)} />
+      )}
     </section>
-  )
+  );
 }
